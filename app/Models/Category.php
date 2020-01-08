@@ -12,6 +12,8 @@ class Category extends Model
 
     use SoftDeletes, Uuid;
 
+    public $incrementing = false;
+
     protected $fillable = [
         'name',
         'description',
