@@ -34,7 +34,10 @@ class CategoryTest extends TestCase
     {
         $category = new Category();
         $casts = ['id' => 'string'];
-        $this->assertEquals($casts, $category->getCasts());
+        foreach ($casts as $cast) {
+            $this->assertContains($cast, $category->getCasts());
+        }
+        $this->assertCount(count($casts), $category->getCasts());
     }
 
     public function testIncrementingAttribute()
