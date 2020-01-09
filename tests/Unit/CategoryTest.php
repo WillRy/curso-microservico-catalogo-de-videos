@@ -10,11 +10,18 @@ use PHPUnit\Framework\TestCase;
 class CategoryTest extends TestCase
 {
 
+    private $category;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->category = new Category();
+    }
+
     public function testFillableAttribute()
     {
-        $category = new Category();
         $fillable = ['name', 'description', 'is_active'];
-        $this->assertEquals($fillable, $category->getFillable());
+        $this->assertEquals($fillable, $this->category->getFillable());
     }
 
     public function testIfUseTraits()
@@ -32,28 +39,25 @@ class CategoryTest extends TestCase
 
     public function testCastsAttribute()
     {
-        $category = new Category();
         $casts = ['id' => 'string'];
         foreach ($casts as $cast) {
-            $this->assertContains($cast, $category->getCasts());
+            $this->assertContains($cast, $this->category->getCasts());
         }
-        $this->assertCount(count($casts), $category->getCasts());
+        $this->assertCount(count($casts), $this->category->getCasts());
     }
 
     public function testIncrementingAttribute()
     {
-        $category = new Category();
-        $this->assertFalse($category->incrementing);
+        $this->assertFalse($this->category->incrementing);
     }
 
     public function testDatesAttribute()
     {
-        $category = new Category();
         $dates = ['deleted_at', 'created_at', 'updated_at'];
         foreach ($dates as $date) {
-            $this->assertContains($date, $category->getDates());
+            $this->assertContains($date, $this->category->getDates());
         }
-        $this->assertCount(count($dates), $category->getDates());
+        $this->assertCount(count($dates), $this->category->getDates());
     }
 
 }
