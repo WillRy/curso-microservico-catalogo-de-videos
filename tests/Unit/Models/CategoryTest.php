@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\Models;
 
 use App\Models\Category;
 use App\Models\Traits\Uuid;
@@ -39,7 +39,7 @@ class CategoryTest extends TestCase
 
     public function testCastsAttribute()
     {
-        $casts = ['id' => 'string'];
+        $casts = ['id' => 'string', 'is_active' => 'boolean'];
         foreach ($casts as $cast) {
             $this->assertContains($cast, $this->category->getCasts());
         }
