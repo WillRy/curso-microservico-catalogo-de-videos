@@ -31,19 +31,13 @@ class CategoryTest extends TestCase
             Uuid::class
         ];
         $categoryTraits = array_keys(class_uses(Category::class));
-        foreach ($traits as $trait) {
-            $this->assertContains($trait, $categoryTraits);
-        }
-        $this->assertCount(count($traits), $categoryTraits);
+        $this->assertEquals($traits, $categoryTraits);
     }
 
     public function testCastsAttribute()
     {
         $casts = ['id' => 'string', 'is_active' => 'boolean'];
-        foreach ($casts as $cast) {
-            $this->assertContains($cast, $this->category->getCasts());
-        }
-        $this->assertCount(count($casts), $this->category->getCasts());
+        $this->assertEquals($casts, $this->category->getCasts());
     }
 
     public function testIncrementingAttribute()

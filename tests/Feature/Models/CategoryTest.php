@@ -26,6 +26,17 @@ class CategoryTest extends TestCase
         ], $categorykeys);
     }
 
+    public function testUuid()
+    {
+        $category = factory(Category::class)->create();
+
+        $regex = '/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/';
+        $this->assertTrue((bool) preg_match($regex, $category->id));
+
+        $searchCategory = Category::find($category->id);
+        $this->assertNotNull($searchCategory);
+    }
+
     public function testCreate()
     {
         $category = Category::create([
@@ -74,11 +85,20 @@ class CategoryTest extends TestCase
             'name' => 'test_name_updated',
             'description' => 'test_description_updated'
         ];
+
         $category->update($data);
 
         foreach ($data as $key => $value){
             $this->assertEquals($value, $category->{$key});
         }
 
+    }
+
+    public function testDelete()
+    {
+        $category = factory(Category::class)->create();
+        $category->delete();
+        $categories = Category::all();
+        $this->assertCount(0, $categories);
     }
 }
