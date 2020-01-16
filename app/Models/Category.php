@@ -24,7 +24,8 @@ class Category extends Model
 
     /** @var array força cast para exibir models, ao usar toArray*/
     protected $casts = [
-        'id' => 'string'
+        'id' => 'string',
+        'is_active' => 'boolean'
     ];
 
 }
