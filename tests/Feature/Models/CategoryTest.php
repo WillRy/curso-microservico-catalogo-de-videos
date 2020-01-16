@@ -100,5 +100,8 @@ class CategoryTest extends TestCase
         $category->delete();
         $categories = Category::all();
         $this->assertCount(0, $categories);
+
+        $category->restore();
+        $this->assertNotNull(Category::find($category->id));
     }
 }
