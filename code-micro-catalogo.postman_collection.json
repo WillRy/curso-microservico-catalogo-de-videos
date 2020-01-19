@@ -6,6 +6,182 @@
 	},
 	"item": [
 		{
+			"name": "cast_members",
+			"item": [
+				{
+					"name": "/api/cast_members/{id}",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8000/api/cast_members/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"cast_members",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/cast_members/{id}",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"Marlon Brando\",\n\t\"type\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/cast_members/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"cast_members",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/cast_members",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"Marlon Brando\",\n\t\"type\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/cast_members",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"cast_members"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/cast_members/{id}",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8000/api/cast_members/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"cast_members",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/cast_members",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8000/api/cast_members",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"cast_members"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
 			"name": "genre",
 			"item": [
 				{
@@ -54,7 +230,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"name\":\"Sobrevivencia - editado II\"\n}",
+							"raw": "{\n\t\"name\":\"Sobrevivencia - editado III\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -237,7 +413,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8000/api/categories/31",
+							"raw": "http://localhost:8000/api/categories/32bd523c-3578-41b0-89e1-8a552e31485e",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -246,7 +422,7 @@
 							"path": [
 								"api",
 								"categories",
-								"31"
+								"32bd523c-3578-41b0-89e1-8a552e31485e"
 							]
 						}
 					},
