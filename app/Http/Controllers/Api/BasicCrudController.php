@@ -42,7 +42,7 @@ abstract class BasicCrudController extends Controller
     {
         $model = $this->findOrFail($id);
         $model->delete();
-        return \Response::noContent();
+        return response()->noContent();
     }
 
     protected function findOrFail($id)
