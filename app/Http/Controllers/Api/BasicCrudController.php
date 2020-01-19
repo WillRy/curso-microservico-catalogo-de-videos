@@ -11,6 +11,7 @@ abstract class BasicCrudController extends Controller
 
     protected abstract function model();
     protected abstract function rulesStore();
+    protected abstract function rulesUpdate();
 
 
     public function index()
@@ -33,7 +34,8 @@ abstract class BasicCrudController extends Controller
     public function update(Request $request, $id)
     {
         $model = $this->findOrFail($id);
-        $model->update($request->all());
+        $validatedData = $this->validate($request, $this->rulesUpdate());
+        $model->update($validatedData);
         return $model;
     }
 

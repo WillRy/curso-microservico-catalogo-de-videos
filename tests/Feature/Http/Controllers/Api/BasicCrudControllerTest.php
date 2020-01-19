@@ -54,6 +54,20 @@ class BasicCrudControllerTest extends TestCase
         $this->controller->store($request);
     }
 
+    public function testInvalidationDataInUpdate()
+    {
+        $this->expectException(ValidationException::class);
+
+        $category = CategoryStub::create(['name' => 'test_name', 'description' => 'test_description'])->refresh();
+        $request = Mockery::mock(Request::class);
+        $request
+            ->shouldReceive('all')
+            ->once()
+            ->andReturn(['name' => '']);
+
+        $this->controller->update($request, $category->id);
+    }
+
 
     public function testStore()
     {
@@ -111,7 +125,7 @@ class BasicCrudControllerTest extends TestCase
         $request = Mockery::mock(Request::class);
         $request->shouldReceive('all')
             ->once()
-            ->andReturn(['test_changed', 'description' => 'test_description_changed']);
+            ->andReturn(['name' => 'test_name', 'description' => 'test_description_changed']);
         $result = $this->controller->update($request, $category->id);
         $this->assertEquals($result->toArray(), CategoryStub::find(1)->toArray());
     }
