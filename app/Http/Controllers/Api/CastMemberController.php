@@ -8,6 +8,16 @@ use Illuminate\Http\Request;
 class CastMemberController extends BasicCrudController
 {
 
+    private $rules;
+
+    public function __construct()
+    {
+        $this->rules = [
+            'name' => 'required|string|max:255',
+            'type' => 'required|integer|in:'. implode(',', [CastMember::TYPE_DIRECTOR, CastMember::TYPE_ACTOR])
+        ];
+    }
+
     protected function model()
     {
         return CastMember::class;
@@ -15,17 +25,11 @@ class CastMemberController extends BasicCrudController
 
     protected function rulesStore()
     {
-        return [
-            'name' => 'required|string|max:255',
-            'type' => 'required|integer|in:1,2'
-        ];
+        return $this->rules;
     }
 
     protected function rulesUpdate()
     {
-        return [
-            'name' => 'required|max:255',
-            'type' => 'required|integer|in:1,2'
-        ];
+        return $this->rules;
     }
 }
