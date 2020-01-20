@@ -125,7 +125,7 @@ class BasicCrudControllerTest extends TestCase
         $request = Mockery::mock(Request::class);
         $request->shouldReceive('all')
             ->once()
-            ->andReturn(['name' => 'test_name', 'description' => 'test_description_changed']);
+            ->andReturn(['name' => 'test_changed', 'description' => 'test_description_changed']);
         $result = $this->controller->update($request, $category->id);
         $this->assertEquals($result->toArray(), CategoryStub::find(1)->toArray());
     }

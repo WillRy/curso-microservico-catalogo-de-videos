@@ -81,17 +81,11 @@ class CategoryControllerTest extends TestCase
             'is_active' => false
         ];
 
-        $this->assertStore($data, $data);
+        $this->assertStore($data, $data + ['deleted_at' => null]);
     }
 
     public function testUpdate()
     {
-
-        $this->category = factory(Category::class)->create([
-            'description' => 'description',
-            'is_active' => false
-        ]);
-
         $data = [
             'name' => 'test',
             'description' => 'test',
@@ -119,7 +113,7 @@ class CategoryControllerTest extends TestCase
 
     }
 
-    public function testDelete()
+    public function testDestroy()
     {
         $response = $this->delete(route('categories.destroy', ['category' => $this->category->id]));
         $response

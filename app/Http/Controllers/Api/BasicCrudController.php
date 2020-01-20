@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use Illuminate\Http\Request;
 
 abstract class BasicCrudController extends Controller
@@ -43,7 +42,7 @@ abstract class BasicCrudController extends Controller
     {
         $model = $this->findOrFail($id);
         $model->delete();
-        return \Response::noContent();
+        return response()->noContent();
     }
 
     protected function findOrFail($id)

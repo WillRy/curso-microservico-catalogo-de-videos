@@ -80,28 +80,26 @@ class GenreControllerTest extends TestCase
             'is_active' => false
         ];
 
-        $this->assertStore($data, $data);
+        $this->assertStore($data, $data + ['deleted_at' => null]);
 
 
     }
 
     public function testUpdate()
     {
-        $this->genre = factory(Genre::class)->create([
-            'name' => 'test',
-            'is_active' => false
-        ]);
-
-        $data = [
+         $data = [
             'name' => 'test',
             'is_active' => true
         ];
 
-        $this->assertUpdate($data, $data + ['deleted_at' => null]);
-
+        $response = $this->assertUpdate($data, $data + ['deleted_at' => null]);
+        $response
+            ->assertJsonStructure([
+                'created_at','updated_at'
+            ]);
     }
 
-    public function testDelete()
+    public function testDestroy()
     {
         $response = $this->delete(route('genres.destroy', ['genre' => $this->genre->id]));
         $response
