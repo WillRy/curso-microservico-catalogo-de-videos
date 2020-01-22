@@ -35,7 +35,7 @@ abstract class BasicCrudController extends Controller
         $model = $this->findOrFail($id);
         $validatedData = $this->validate($request, $this->rulesUpdate());
         $model->update($validatedData);
-        return $model;
+        return $model->refresh();
     }
 
     public function destroy($id)
