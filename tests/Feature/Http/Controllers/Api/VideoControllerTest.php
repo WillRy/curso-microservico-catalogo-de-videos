@@ -131,6 +131,14 @@ class VideoControllerTest extends TestCase
         ];
         $this->assertInvalidationInStoreAction($data, 'exists');
         $this->assertInvalidationInUpdateAction($data, 'exists');
+
+        $category = factory(Category::class)->create();
+        $category->delete();
+        $data = [
+            'categories_id' => [$category->id]
+        ];
+        $this->assertInvalidationInStoreAction($data, 'exists');
+        $this->assertInvalidationInUpdateAction($data, 'exists');
     }
 
     public function testInvalidationGenresIdField()
@@ -145,6 +153,14 @@ class VideoControllerTest extends TestCase
             'genres_id' => [100]
         ];
 
+        $this->assertInvalidationInStoreAction($data, 'exists');
+        $this->assertInvalidationInUpdateAction($data, 'exists');
+
+        $genre = factory(Genre::class)->create();
+        $genre->delete();
+        $data = [
+            'genres_id' => [$genre->id]
+        ];
         $this->assertInvalidationInStoreAction($data, 'exists');
         $this->assertInvalidationInUpdateAction($data, 'exists');
 
@@ -214,8 +230,8 @@ class VideoControllerTest extends TestCase
                     'created_at', 'updated_at'
                 ]);
 
-            $this->assertRelationsCategory($response->json('id'), $category->id);
-            $this->assertRelationsGenre($response->json('id'), $genre->id);
+            $this->assertHasCategory($response->json('id'), $category->id);
+            $this->assertHasGenre($response->json('id'), $genre->id);
 
             $response = $this->assertUpdate($value['send_data'], $value['test_data'] + ['deleted_at' => null]);
             $response
@@ -223,23 +239,27 @@ class VideoControllerTest extends TestCase
                     'created_at', 'updated_at'
                 ]);
 
-            $this->assertRelationsCategory($response->json('id'), $category->id);
-            $this->assertRelationsGenre($response->json('id'), $genre->id);
+            $this->assertHasCategory($response->json('id'), $category->id);
+            $this->assertHasGenre($response->json('id'), $genre->id);
 
         }
 
     }
 
-    protected function assertRelationsCategory($videoId, $categoryId)
+    protected function assertHasCategory($videoId, $categoryId)
     {
-        $video = Video::find($videoId);
-        $this->assertNotNull($video->categories()->find($categoryId));
+        $this->assertDatabaseHas('category_video', [
+            'video_id' => $videoId,
+            'category_id' => $categoryId
+        ]);
     }
 
-    protected function assertRelationsGenre($videoId, $genreId)
+    protected function assertHasGenre($videoId, $genreId)
     {
-        $video = Video::find($videoId);
-        $this->assertNotNull($video->genres()->find($genreId));
+        $this->assertDatabaseHas('genre_video', [
+            'video_id' => $videoId,
+            'genre_id' => $genreId
+        ]);
     }
 
 
@@ -252,11 +272,14 @@ class VideoControllerTest extends TestCase
 
         $request = \Mockery::mock(Request::class);
 
+        $hasError = false;
         try {
             $controller->store($request);
         }catch (TestException $e){
             $this->assertCount(1, Video::all());
+            $hasError = true;
         }
+        $this->assertTrue($hasError);
     }
 
     public function testRollbackUpdate()
@@ -268,11 +291,14 @@ class VideoControllerTest extends TestCase
 
         $request = \Mockery::mock(Request::class);
 
+        $hasError = false;
         try {
             $controller->update($request, $this->video->id);
         }catch (TestException $e){
             $this->assertEquals($this->video->toArray(), Video::find($this->video->id)->toArray());
+            $hasError = true;
         }
+        $this->assertTrue($hasError);
     }
 
     public function testDestroy()
@@ -285,8 +311,6 @@ class VideoControllerTest extends TestCase
         $this->assertNull(Video::find($this->video->id));
         $this->assertNotNull(Video::withTrashed()->find($this->video->id));
     }
-
-
 
 
     protected function model()

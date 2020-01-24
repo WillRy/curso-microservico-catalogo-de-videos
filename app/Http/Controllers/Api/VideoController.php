@@ -20,8 +20,8 @@ class VideoController extends BasicCrudController
             'opened' => 'boolean',
             'rating' => 'required|in:'. implode(',', Video::RATING_LIST),
             'duration' => 'required|integer',
-            'categories_id' => ['bail', 'required','array','exists:categories,id', new RelationGenreCategory],
-            'genres_id' => ['bail', 'required','array','exists:genres,id', new RelationGenreCategory]
+            'categories_id' => ['bail', 'required','array','exists:categories,id,deleted_at,NULL', new RelationGenreCategory],
+            'genres_id' => ['bail', 'required','array','exists:genres,id,deleted_at,NULL', new RelationGenreCategory]
         ];
     }
 
@@ -30,7 +30,7 @@ class VideoController extends BasicCrudController
         $validatedData = $this->validate($request, $this->rulesStore());
 
         $self = $this;
-        $obj = \DB::transaction(function () use($request, $validatedData, $self) {
+        $obj = \DB::transaction(function () use($self, $request, $validatedData) {
 
             $obj = $this->model()::create($validatedData);
             $self->handleRelations($obj, $request);
@@ -48,7 +48,7 @@ class VideoController extends BasicCrudController
         $validatedData = $this->validate($request, $this->rulesUpdate());
 
         $self = $this;
-        $obj = \DB::transaction(function () use($request, $validatedData, $self, $obj) {
+        $obj = \DB::transaction(function () use($self, $request, $obj, $validatedData) {
 
             $obj->update($validatedData);
             $self->handleRelations($obj, $request);
