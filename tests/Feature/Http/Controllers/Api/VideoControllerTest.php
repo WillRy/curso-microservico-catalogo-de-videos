@@ -7,7 +7,6 @@ use App\Models\Category;
 use App\Models\Genre;
 use App\Models\Video;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\TestResponse;
 use Illuminate\Http\Request;
 use Tests\Exceptions\TestException;
 use Tests\TestCase;
@@ -145,6 +144,29 @@ class VideoControllerTest extends TestCase
         $data = [
             'genres_id' => [100]
         ];
+
+        $this->assertInvalidationInStoreAction($data, 'exists');
+        $this->assertInvalidationInUpdateAction($data, 'exists');
+
+    }
+
+    public function testInvalidationRelationsBetweenGenreAndCategory()
+    {
+        $category = factory(Category::class)->create();
+        $genre = factory(Genre::class)->create();
+
+        $data = [
+            'genres_id' => [$genre->id]
+        ];
+
+        $this->assertInvalidationInStoreAction($data, 'exists');
+        $this->assertInvalidationInUpdateAction($data, 'exists');
+
+
+        $data = [
+            'categories_id' => [$category->id]
+        ];
+
         $this->assertInvalidationInStoreAction($data, 'exists');
         $this->assertInvalidationInUpdateAction($data, 'exists');
     }
@@ -154,18 +176,33 @@ class VideoControllerTest extends TestCase
 
         $category = factory(Category::class)->create();
         $genre = factory(Genre::class)->create();
+        $genre->categories()->sync($category->id);
 
         $data = [
             [
-                'send_data' => $this->sendData + ['categories_id' => [$category->id], 'genres_id' => [$genre->id]],
+                'send_data' => $this->sendData +
+                    [
+                        'categories_id' => [$category->id],
+                        'genres_id' => [$genre->id]
+                    ],
                 'test_data' => $this->sendData + ['opened' => false]
             ],
             [
-                'send_data' => $this->sendData + ['opened' => true, 'categories_id' => [$category->id], 'genres_id' => [$genre->id]],
+                'send_data' => $this->sendData +
+                    [
+                        'opened' => true,
+                        'categories_id' => [$category->id],
+                        'genres_id' => [$genre->id]
+                    ],
                 'test_data' => $this->sendData + ['opened' => true]
             ],
             [
-                'send_data' => $this->sendData + ['rating' => Video::RATING_LIST[1], 'categories_id' => [$category->id], 'genres_id' => [$genre->id]],
+                'send_data' => $this->sendData +
+                    [
+                        'rating' => Video::RATING_LIST[1],
+                        'categories_id' => [$category->id],
+                        'genres_id' => [$genre->id]
+                    ],
                 'test_data' => $this->sendData + ['rating' => Video::RATING_LIST[1]]
             ]
         ];

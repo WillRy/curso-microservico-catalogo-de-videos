@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Http\Controllers\Api;
 
+use App\Models\Category;
 use App\Models\Genre;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
@@ -63,40 +64,60 @@ class GenreControllerTest extends TestCase
 
     }
 
-    public function testStore()
+    public function testInvalidationCategoriesIdField()
     {
         $data = [
-            'name' => 'test'
+            'categories_id' => 'a'
         ];
-        $response = $this->assertStore($data, $data + ['is_active' => true, 'deleted_at' => null]);
-        $response
-            ->assertJsonStructure([
-                'created_at', 'updated_at'
-            ]);
-
+        $this->assertInvalidationInStoreAction($data, 'array');
+        $this->assertInvalidationInUpdateAction($data, 'array');
 
         $data = [
-            'name' => 'test',
-            'is_active' => false
+            'categories_id' => [100]
+        ];
+        $this->assertInvalidationInStoreAction($data, 'exists');
+        $this->assertInvalidationInUpdateAction($data, 'exists');
+    }
+
+    public function testSave()
+    {
+        $category = factory(Category::class)->create();
+
+        $data = [
+            [
+                'send_data' => ['name' => 'test', 'categories_id' => [$category->id]],
+                'test_data' => ['name' => 'test']
+            ],
+            [
+                'send_data' => ['name' => 'test', 'is_active' => false, 'categories_id' => [$category->id]],
+                'test_data' => ['name' => 'test', 'is_active' => false]
+            ]
         ];
 
-        $this->assertStore($data, $data + ['deleted_at' => null]);
+        foreach ($data as $key => $value){
+            $response = $this->assertStore($value['send_data'], $value['test_data']);
+            $response
+                ->assertJsonStructure([
+                    'created_at', 'updated_at'
+                ]);
+            $this->assertRelationsCategory($response->json('id'), $category->id);
 
+
+            $response = $this->assertUpdate($value['send_data'], $value['test_data']);
+            $response
+                ->assertJsonStructure([
+                    'created_at', 'updated_at'
+                ]);
+            $this->assertRelationsCategory($response->json('id'), $category->id);
+        }
 
     }
 
-    public function testUpdate()
-    {
-         $data = [
-            'name' => 'test',
-            'is_active' => true
-        ];
 
-        $response = $this->assertUpdate($data, $data + ['deleted_at' => null]);
-        $response
-            ->assertJsonStructure([
-                'created_at','updated_at'
-            ]);
+    public function assertRelationsCategory($genreId, $categoryId)
+    {
+        $genre = Genre::find($genreId);
+        $this->assertNotNull($genre->categories()->find($categoryId));
     }
 
     public function testDestroy()

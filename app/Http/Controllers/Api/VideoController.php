@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Video;
+use App\Rules\RelationGenreCategory;
 use Illuminate\Http\Request;
 
 class VideoController extends BasicCrudController
@@ -19,8 +20,8 @@ class VideoController extends BasicCrudController
             'opened' => 'boolean',
             'rating' => 'required|in:'. implode(',', Video::RATING_LIST),
             'duration' => 'required|integer',
-            'categories_id' => 'required|array|exists:categories,id',
-            'genres_id' => 'required|array|exists:genres,id'
+            'categories_id' => ['bail', 'required','array','exists:categories,id', new RelationGenreCategory],
+            'genres_id' => ['bail', 'required','array','exists:genres,id', new RelationGenreCategory]
         ];
     }
 
