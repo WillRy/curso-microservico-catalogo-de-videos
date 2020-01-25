@@ -166,26 +166,6 @@ class VideoControllerTest extends TestCase
 
     }
 
-    public function testInvalidationRelationsBetweenGenreAndCategory()
-    {
-        $category = factory(Category::class)->create();
-        $genre = factory(Genre::class)->create();
-
-        $data = [
-            'genres_id' => [$genre->id]
-        ];
-
-        $this->assertInvalidationInStoreAction($data, 'exists');
-        $this->assertInvalidationInUpdateAction($data, 'exists');
-
-
-        $data = [
-            'categories_id' => [$category->id]
-        ];
-
-        $this->assertInvalidationInStoreAction($data, 'exists');
-        $this->assertInvalidationInUpdateAction($data, 'exists');
-    }
 
     public function testSave()
     {
@@ -362,6 +342,7 @@ class VideoControllerTest extends TestCase
         $controller->shouldReceive('rulesStore')->withAnyArgs()->andReturn([]);
 
         $request = \Mockery::mock(Request::class);
+        $request->shouldReceive('get')->withAnyArgs()->andReturnNull();
 
         $hasError = false;
         try {
@@ -381,6 +362,7 @@ class VideoControllerTest extends TestCase
         $controller->shouldReceive('rulesUpdate')->withAnyArgs()->andReturn([]);
 
         $request = \Mockery::mock(Request::class);
+        $request->shouldReceive('get')->withAnyArgs()->andReturnNull();
 
         $hasError = false;
         try {
