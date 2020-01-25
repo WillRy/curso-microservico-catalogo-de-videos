@@ -129,6 +129,9 @@ return [
     |
     */
 
+    'genres_has_categories' => "A genre ID must be related at least a category ID",
+
+
     'custom' => [
         'attribute-name' => [
             'rule-name' => 'custom-message',
