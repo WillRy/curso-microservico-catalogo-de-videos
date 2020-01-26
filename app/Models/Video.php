@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\UploadFiles;
 use App\Models\Traits\Uuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -9,11 +10,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Video extends Model
 {
 
-    use SoftDeletes, Uuid;
+    use SoftDeletes, Uuid, UploadFiles;
 
     const RATING_LIST = ['L', '10', '12', '14', '16', '18'];
 
     public $incrementing = false;
+    public static $fileFields = [
+        'video_file'
+    ];
 
 
 
@@ -23,7 +27,8 @@ class Video extends Model
         'year_launched',
         'opened',
         'rating',
-        'duration'
+        'duration',
+        'video_file'
     ];
 
     protected $dates = ['deleted_at'];
@@ -37,12 +42,15 @@ class Video extends Model
 
     public static function create(array $attributes = [])
     {
+
+        $files = self::extractFiles($attributes);
         try {
             \DB::beginTransaction();
 
+            /** @var Video $obj */
             $obj = static::query()->create($attributes);
             static::handleRelations($obj, $attributes);
-            //upload aqui
+            $obj->uploadFiles($files);
 
             \DB::commit();
 
@@ -102,4 +110,8 @@ class Video extends Model
     }
 
 
+    protected function uploadDir()
+    {
+        return $this->id;
+    }
 }
