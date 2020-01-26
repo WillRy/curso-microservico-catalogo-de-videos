@@ -6,6 +6,182 @@
 	},
 	"item": [
 		{
+			"name": "videos",
+			"item": [
+				{
+					"name": "/api/videos/{id}",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8000/api/videos/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"videos",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/videos/{id}",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"Marlon Brando\",\n\t\"type\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/videos/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"videos",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/videos",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"title\": \"title\",\n   \"description\": \"description\",\n   \"year_launched\": \"2010\",\n   \"rating\": \"L\",\n   \"duration\": 90,\n   \"categories_id\": [\n\t\t\"0436d3b1-7b37-4a7c-8b0f-f3e075eedd7d\"\n   \t],\n   \t\"genres_id\": [\n\t\t\"5d289c9d-748c-4d87-aaa0-eb0f7a5cab16\"\n   \t]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/videos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"videos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/videos/{id}",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8000/api/videos/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"videos",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/videos",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8000/api/videos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"videos"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
 			"name": "cast_members",
 			"item": [
 				{
@@ -103,7 +279,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"name\": \"Marlon Brando\",\n\t\"type\": 1\n}",
+							"raw": "{\n\t\"name\": \"Marlon Brando\",\n\t\"type\": 2\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -182,7 +358,7 @@
 			"protocolProfileBehavior": {}
 		},
 		{
-			"name": "genre",
+			"name": "genres",
 			"item": [
 				{
 					"name": "/api/genres/{id} Copy",
@@ -272,7 +448,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"name\":\"Sobrevivencia\"\n}",
+							"raw": "{\n\t\"name\":\"Sobrevivencia\",\n\t\"categories_id\":[\n\t\t\"0436d3b1-7b37-4a7c-8b0f-f3e075eedd7d\"\n\t]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -524,6 +700,48 @@
 				}
 			],
 			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "test",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n   \t\"categories_id\": [\n\t\t\"be03f66c-de9f-4d37-b545-c5b5aebd3650\"\n   \t]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/api/videos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"videos"
+					]
+				},
+				"description": "test"
+			},
+			"response": []
 		}
 	],
 	"protocolProfileBehavior": {}

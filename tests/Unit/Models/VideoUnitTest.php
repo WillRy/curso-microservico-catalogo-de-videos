@@ -18,6 +18,12 @@ class VideoUnitTest extends TestCase
         $this->video = new Video();
     }
 
+    public function testRatingList()
+    {
+        $rating = ['L', '10', '12', '14', '16', '18'];
+        $this->assertEqualsCanonicalizing($rating, Video::RATING_LIST);
+    }
+
     public function testFillableAttribute()
     {
         $fillable = [
