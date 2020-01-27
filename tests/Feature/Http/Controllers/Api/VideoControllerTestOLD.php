@@ -12,12 +12,13 @@ use Illuminate\Http\UploadedFile;
 use Tests\Exceptions\TestException;
 use Tests\TestCase;
 use Tests\Traits\TestSaves;
+use Tests\Traits\TestUploads;
 use Tests\Traits\TestValidations;
 
-class VideoControllerTest extends TestCase
+class VideoControllerTestOLD extends TestCase
 {
 
-    use DatabaseMigrations, TestSaves, TestValidations;
+    use DatabaseMigrations, TestSaves, TestValidations, TestUploads;
 
     /** @var Video  */
     private $video;
@@ -167,24 +168,19 @@ class VideoControllerTest extends TestCase
 
     }
 
-    public function testInvalidationVideoFileField()
+    public function testInvalidationVideoField()
     {
-        $data = [
-            'video_file' =>  UploadedFile::fake()->create('video1.avi')
-        ];
-
-        $this->assertInvalidationInStoreAction($data, 'mimetypes', ['values' => 'video/mp4']);
-        $this->assertInvalidationInUpdateAction($data, 'mimetypes', ['values' => 'video/mp4']);
-
-        $data = [
-            'video_file' =>  UploadedFile::fake()->create('video1.mp4')->size(60)
-        ];
-        $this->assertInvalidationInStoreAction($data, 'max.file', ['max' => 50]);
-        $this->assertInvalidationInUpdateAction($data, 'max.file', ['max' => 50]);
+        $this->assertInvalidationFile(
+            'video_file',
+            'mp4',
+            50,
+            'mimetypes',
+            ['values' => 'video/mp4']
+        );
     }
 
 
-    public function testSave()
+    public function testSaveWithoutFiles()
     {
 
         $category = factory(Category::class)->create();
@@ -245,37 +241,61 @@ class VideoControllerTest extends TestCase
 
     public function testSaveWithFiles()
     {
+        \Storage::fake();
+        $files = $this->getFiles();
+
         $category = factory(Category::class)->create();
         $genre = factory(Genre::class)->create();
         $genre->categories()->sync($category->id);
 
-        \Storage::fake();
-        $uploadFile = UploadedFile::fake()->create('video1.mp4')->size(40);
+        $response = $this->json(
+            'POST',
+            $this->routeStore(),
+            $this->sendData + [
+                'categories_id' => [$category->id],
+                'genres_id' => [$genre->id]
+            ] +
+            $files
+        );
 
-        $data = [
-            [
-                'send_data' => $this->sendData +
-                    [
-                        'categories_id' => [$category->id],
-                        'genres_id' => [$genre->id],
-                        'video_file' => $uploadFile
-                    ],
-                'test_data' => $this->sendData + ['opened' => false, 'video_file' => $uploadFile->hashName()]
-            ]
-        ];
-
-        foreach ($data as $key => $value){
-            $response = $this->assertStore(
-                $value['send_data'],
-                $value['test_data'] + ['deleted_at' => null]
-            );
-
-            $this->assertHasCategory($response->json('id'), $category->id);
-            $this->assertHasGenre($response->json('id'), $genre->id);
-
-            $this->assertHasVideoFile($response->json('id'), $response->json('video_file'));
-
+        $response->assertStatus(201);
+        $id = $response->json('id');
+        foreach ($files as $file){
+            \Storage::assertExists("{$id}/{$file->hashName()}");
         }
+    }
+
+    public function testUpdateWithFiles()
+    {
+        \Storage::fake();
+        $files = $this->getFiles();
+
+        $category = factory(Category::class)->create();
+        $genre = factory(Genre::class)->create();
+        $genre->categories()->sync($category->id);
+
+        $response = $this->json(
+            'PUT',
+            $this->routeUpdate(),
+            $this->sendData + [
+                'categories_id' => [$category->id],
+                'genres_id' => [$genre->id]
+            ] +
+            $files
+        );
+
+        $response->assertStatus(200);
+        $id = $response->json('id');
+        foreach ($files as $file){
+            \Storage::assertExists("{$id}/{$file->hashName()}");
+        }
+    }
+
+    protected function getFiles()
+    {
+        return [
+            'video_file' => UploadedFile::fake()->create('video_file.mp4')
+        ];
     }
 
     protected function assertHasCategory($videoId, $categoryId)

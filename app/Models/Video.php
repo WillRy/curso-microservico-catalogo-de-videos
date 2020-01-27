@@ -27,8 +27,7 @@ class Video extends Model
         'year_launched',
         'opened',
         'rating',
-        'duration',
-        'video_file'
+        'duration'
     ];
 
     protected $dates = ['deleted_at'];
@@ -68,12 +67,13 @@ class Video extends Model
 
     public function update(array $attributes = [], array $options = [])
     {
+        $files = self::extractFiles($attributes);
         try {
             \DB::beginTransaction();
 
             $saved = parent::update($attributes, $options);
             static::handleRelations($this, $attributes);
-
+            $this->uploadFiles($files);
             if($saved){
                 //upload aqui
                 //excluir os antigos
