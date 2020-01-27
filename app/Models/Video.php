@@ -6,6 +6,7 @@ use App\Models\Traits\UploadFiles;
 use App\Models\Traits\Uuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Video extends Model
 {
@@ -16,7 +17,8 @@ class Video extends Model
 
     public $incrementing = false;
     public static $fileFields = [
-        'video_file'
+        'video_file',
+        'thumb_file'
     ];
 
 
@@ -27,7 +29,9 @@ class Video extends Model
         'year_launched',
         'opened',
         'rating',
-        'duration'
+        'duration',
+        'video_file',
+        'thumb_file'
     ];
 
     protected $dates = ['deleted_at'];
@@ -44,21 +48,21 @@ class Video extends Model
 
         $files = self::extractFiles($attributes);
         try {
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             /** @var Video $obj */
             $obj = static::query()->create($attributes);
             static::handleRelations($obj, $attributes);
             $obj->uploadFiles($files);
 
-            \DB::commit();
+            DB::commit();
 
             return $obj;
         } catch (\Exception $e) {
             if(isset($obj)){
-                //excluir arquivos
+                $obj->deleteFiles($files);
             }
-            \DB::rollBack();
+            DB::rollBack();
             throw $e;
         }
 

@@ -10,6 +10,18 @@ use App\Models\Video;
 
 class VideoCrudTest extends BaseVideoTestCase
 {
+
+    private $fileFieldsData = [];
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        foreach (Video::$fileFields as $field){
+            $this->fileFieldsData[$field] = "{$field}.test";
+        }
+    }
+
     public function testList()
     {
         factory(Video::class)->create();
@@ -27,6 +39,7 @@ class VideoCrudTest extends BaseVideoTestCase
             'rating',
             'duration',
             'video_file',
+            'thumb_file',
             'created_at','updated_at','deleted_at'
         ], $videoKeys);
     }
@@ -41,11 +54,11 @@ class VideoCrudTest extends BaseVideoTestCase
 
     public function testCreateWithBasicFields()
     {
-        $video = Video::create($this->data)->refresh();
+        $video = Video::create($this->data + $this->fileFieldsData)->refresh();
 
         $this->assertEquals(36, strlen($video->id));
         $this->assertFalse($video->opened);
-        $this->assertDatabaseHas('videos', $this->data + ['opened' => false]);
+        $this->assertDatabaseHas('videos', $this->data + $this->fileFieldsData + ['opened' => false]);
 
         $video = Video::create($this->data + ['opened' => true])->refresh();
         $this->assertTrue($video->opened);
@@ -66,23 +79,6 @@ class VideoCrudTest extends BaseVideoTestCase
         $this->assertHasGenre($video->id, $genre->id);
     }
 
-    public function assertHasCategory($videoId, $categoryId)
-    {
-        $this->assertDatabaseHas('category_video', [
-            'video_id' => $videoId,
-            'category_id' => $categoryId
-        ]);
-    }
-
-    public function assertHasGenre($videoId, $genreId)
-    {
-        $this->assertDatabaseHas('genre_video', [
-            'video_id' => $videoId,
-            'genre_id' => $genreId
-        ]);
-    }
-
-
     public function testUpdateWithBasicFields()
     {
         $video = factory(Video::class)->create([
@@ -91,7 +87,7 @@ class VideoCrudTest extends BaseVideoTestCase
 
         $video->update($this->data);
         $this->assertFalse($video->opened);
-        $this->assertDatabaseHas('videos', $this->data + ['opened' => false]);
+        $this->assertDatabaseHas('videos', $this->data + $this->fileFieldsData + ['opened' => false]);
 
 
         $video = factory(Video::class)->create([
@@ -118,6 +114,22 @@ class VideoCrudTest extends BaseVideoTestCase
 
         $this->assertHasCategory($video->id, $category->id);
         $this->assertHasGenre($video->id, $genre->id);
+    }
+
+    public function assertHasCategory($videoId, $categoryId)
+    {
+        $this->assertDatabaseHas('category_video', [
+            'video_id' => $videoId,
+            'category_id' => $categoryId
+        ]);
+    }
+
+    public function assertHasGenre($videoId, $genreId)
+    {
+        $this->assertDatabaseHas('genre_video', [
+            'video_id' => $videoId,
+            'genre_id' => $genreId
+        ]);
     }
 
     public function testHandleRelations()

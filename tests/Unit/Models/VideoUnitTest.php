@@ -27,7 +27,7 @@ class VideoUnitTest extends TestCase
 
     public function testFileFieldsAttribute()
     {
-        $fileFields = ['video_file'];
+        $fileFields = ['video_file','thumb_file'];
         $this->assertEqualsCanonicalizing($fileFields, Video::$fileFields);
     }
 
@@ -39,7 +39,9 @@ class VideoUnitTest extends TestCase
             'year_launched',
             'opened',
             'rating',
-            'duration'
+            'duration',
+            'video_file',
+            'thumb_file'
         ];
 
         $this->assertEquals($fillable, $this->video->getFillable());
