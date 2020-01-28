@@ -77,15 +77,19 @@ class Video extends Model
 
             $saved = parent::update($attributes, $options);
             static::handleRelations($this, $attributes);
-            $this->uploadFiles($files);
+
             if($saved){
-                //upload aqui
-                //excluir os antigos
+                $this->uploadFiles($files);
             }
             \DB::commit();
+
+            //depois do commit para garantir que nao exclua sem ter efetuado o save
+            if($saved && count($files)){
+                $this->deleteOldFiles();
+            }
             return $saved;
         } catch (\Exception $e) {
-            //excluir arquivos
+            $this->deleteFiles($files);
             \DB::rollBack();
             throw $e;
         }

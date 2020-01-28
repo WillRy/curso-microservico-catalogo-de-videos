@@ -85,7 +85,7 @@ class VideoCrudTest extends BaseVideoTestCase
             'opened' => false
         ]);
 
-        $video->update($this->data);
+        $video->update($this->data + $this->fileFieldsData);
         $this->assertFalse($video->opened);
         $this->assertDatabaseHas('videos', $this->data + $this->fileFieldsData + ['opened' => false]);
 
