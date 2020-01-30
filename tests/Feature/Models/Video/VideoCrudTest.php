@@ -11,15 +11,13 @@ use App\Models\Video;
 class VideoCrudTest extends BaseVideoTestCase
 {
 
-    private $fileFieldsData = [];
+
 
     public function setUp(): void
     {
         parent::setUp();
 
-        foreach (Video::$fileFields as $field){
-            $this->fileFieldsData[$field] = "{$field}.test";
-        }
+
     }
 
     public function testList()
@@ -40,6 +38,8 @@ class VideoCrudTest extends BaseVideoTestCase
             'duration',
             'video_file',
             'thumb_file',
+            'banner_file',
+            'trailer_file',
             'created_at','updated_at','deleted_at'
         ], $videoKeys);
     }
@@ -142,6 +142,7 @@ class VideoCrudTest extends BaseVideoTestCase
         Video::handleRelations($video, []);
         $this->assertCount(0, $video->categories);
         $this->assertCount(0, $video->genres);
+        $video->refresh();
 
         Video::handleRelations($video, [
             'categories_id' => [$category->id]
