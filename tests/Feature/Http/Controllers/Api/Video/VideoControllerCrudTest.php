@@ -19,11 +19,20 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
     use TestSaves, TestValidations, TestResources;
 
     protected $serializedFields = [
+        'id',
         'title',
         'description',
         'year_launched',
         'rating',
         'duration',
+        'opened',
+        'video_file_url',
+        'thumb_file_url',
+        'trailer_file_url',
+        'banner_file_url',
+        'created_at',
+        'updated_at',
+        'deleted_at',
         'categories' => [
             '*' => [
                 'id',
@@ -32,7 +41,7 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
                 'is_active',
                 'created_at',
                 'updated_at',
-                'deleted_at'
+                'deleted_at',
             ]
         ],
         'genres' => [
@@ -40,10 +49,9 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
                 'id',
                 'name',
                 'is_active',
-                'categories',
                 'created_at',
                 'updated_at',
-                'deleted_at'
+                'deleted_at',
             ]
         ]
     ];
@@ -56,13 +64,13 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
             ->assertJson([
                 'meta' => ['per_page' => 15]
             ])
-        ->assertJsonStructure([
-            'data' => [
-                '*' => $this->serializedFields
-            ],
-            'links' => [],
-            'meta' => []
-        ]);
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => $this->serializedFields
+                ],
+                'links' => [],
+                'meta' => []
+            ]);
 
 
         $resource = VideoResource::collection(collect([$this->video]));
