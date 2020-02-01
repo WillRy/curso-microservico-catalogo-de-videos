@@ -49,7 +49,7 @@ class VideoSeeder extends Seeder
 
     protected function fetchRelations()
     {
-        $subGenres = $this->allGenres->random(5)->load('categories');
+        $subGenres = $this->allGenres->random(2)->load('categories');
         $categoriesId = [];
 
         foreach ($subGenres as $genre){
