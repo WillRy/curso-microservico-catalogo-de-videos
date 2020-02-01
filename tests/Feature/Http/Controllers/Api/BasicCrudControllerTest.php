@@ -43,6 +43,7 @@ class BasicCrudControllerTest extends TestCase
         $this->assertEquals([$category->toArray()], $serialized['data']);
 
         $this->assertArrayHasKey('meta',  $serialized);
+        $this->assertArrayHasKey('links',  $serialized);
 
     }
 
@@ -88,7 +89,7 @@ class BasicCrudControllerTest extends TestCase
 
         $serialized = $result->response()->getData(true);
         $this->assertEquals(
-            CategoryStub::find(1)->toArray(),
+            CategoryStub::first()->toArray(),
             $serialized['data']
         );
     }

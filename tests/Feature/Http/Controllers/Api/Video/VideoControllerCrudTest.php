@@ -75,6 +75,8 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
 
         $resource = VideoResource::collection(collect([$this->video]));
         $this->assertResource($response, $resource);
+
+        $this->assertIfFilesUrlExists($this->video, $response);
     }
 
     public function testShow()
@@ -88,6 +90,7 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
 
         $resource = $this->getResource($response, $this->model());
         $this->assertResource($response, $resource);
+        $this->assertIfFilesUrlExists($this->video, $response);
     }
 
     public function testInvalidationRequired()
@@ -230,6 +233,7 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
                 ]);
             $resource = $this->getResource($response, $this->model());
             $this->assertResource($response, $resource);
+            $this->assertIfFilesUrlExists($this->video, $response);
 
             $this->assertHasCategory($response->json('data.id'), $this->category->id);
             $this->assertHasGenre($response->json('data.id'), $this->genre->id);
@@ -241,7 +245,7 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
                 ]);
             $resource = $this->getResource($response, $this->model());
             $this->assertResource($response, $resource);
-
+            $this->assertIfFilesUrlExists($this->video, $response);
 
             $this->assertHasCategory($response->json('data.id'), $this->category->id);
             $this->assertHasGenre($response->json('data.id'), $this->genre->id);
