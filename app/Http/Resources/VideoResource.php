@@ -20,7 +20,7 @@ class VideoResource extends JsonResource
                 'trailer_file_url' => $this->trailer_file_url,
                 'video_file_url' => $this->video_file_url,
                 'categories' => CategoryResource::collection($this->categories),
-                'genres' => CategoryResource::collection($this->genres),
+                'genres' => GenreResource::collection($this->genres),
             ];
     }
 }

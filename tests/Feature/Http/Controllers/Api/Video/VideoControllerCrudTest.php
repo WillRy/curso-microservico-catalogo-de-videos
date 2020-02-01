@@ -40,7 +40,7 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
                 'id',
                 'name',
                 'is_active',
-                'categories_id',
+                'categories',
                 'created_at',
                 'updated_at',
                 'deleted_at'
@@ -198,7 +198,6 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
     {
 
         $testData = Arr::except($this->sendData, ['categories_id', 'genres_id']);
-        $serializedData = Arr::except($this->serializedFields, ['categories', 'genres']);
 
         $data = [
             [
@@ -219,7 +218,7 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
             $response = $this->assertStore($value['send_data'], $value['test_data'] + ['deleted_at' => null]);
             $response
                 ->assertJsonStructure([
-                    'data' => $serializedData
+                    'data' => $this->serializedFields
                 ]);
             $resource = $this->getResource($response, $this->model());
             $this->assertResource($response, $resource);
@@ -230,7 +229,7 @@ class VideoControllerCrudTest extends BaseVideoControllerTestCase
             $response = $this->assertUpdate($value['send_data'], $value['test_data'] + ['deleted_at' => null]);
             $response
                 ->assertJsonStructure([
-                    'data' => $serializedData
+                    'data' => $this->serializedFields
                 ]);
             $resource = $this->getResource($response, $this->model());
             $this->assertResource($response, $resource);
