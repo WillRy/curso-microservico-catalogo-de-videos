@@ -1,6 +1,7 @@
 import { RouteProps } from "react-router-dom";
 import Dashboard from "../pages/Dashboard";
 import CategoryList from '../pages/category/PageList';
+import CastMemberList from '../pages/cast-member/PageList';
 
 export interface MyRouteProps extends RouteProps{
     label: string,
@@ -34,6 +35,13 @@ const routes: MyRouteProps[] = [
         label: "Editar categorias",
         path: "/categories/:id/edit",
         component: CategoryList,
+        exact: true
+    },
+    {
+        name: 'castmember.list',
+        label: 'Listar elenco',
+        path: '/castmember',
+        component: CastMemberList,
         exact: true
     }
 ];
