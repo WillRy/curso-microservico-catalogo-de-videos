@@ -9,12 +9,12 @@ import Table from "./Table";
 
 const PageList = () => {
     return (
-        <Page title={"Listagem de elenco"}>
+        <Page title={"Listagem de membro de elenco"}>
             <Box dir={"rtl"}>
                 <Fab
-                    title="Adicionar membro"
+                    title="Adicionar membro de elenco"
                     size="small"
-                    component={Link} to={"/castmember/create"}
+                    component={Link} to={"/cast-members/create"}
                 >
                     <Add/>
                 </Fab>

@@ -20,7 +20,7 @@ const columnsDefinitions:MUIDataTableColumn[] = [
         label: "Tipo",
         options: {
             customBodyRender(value: number, tableMeta, updateValue) {
-                return <span>{CastMemberTypeMap[value]}</span>;
+                return CastMemberTypeMap[value];
             }
         }
     },
