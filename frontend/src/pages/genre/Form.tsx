@@ -30,24 +30,24 @@ const Form = () => {
 
     const [categories, setCategories] = useState<Category[]>( []);
 
-    const {register, setValue, getValues, watch} = useForm({
+    const {register, handleSubmit,getValues, setValue , watch} = useForm({
         defaultValues: {
             categories_id: []
         }
     });
 
     useEffect(() => {
-
         register({
             name: 'categories_id'
         });
+    }, [register]);
 
+    useEffect(() => {
         categoryHttp.list().then(response => setCategories(response.data.data));
     }, []);
 
     const  handleCategoriesChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-        const categories = (event.target.value as Array<any>).filter(selected => selected !== "");
-        setValue('categories_id', categories);
+        setValue('categories_id', event.target.value as Array<any>);
     };
 
     const onSubmit = (formData, event) => {
@@ -55,7 +55,7 @@ const Form = () => {
     };
 
     return (
-        <form>
+        <form onSubmit={handleSubmit(onSubmit)}>
             <TextField
                 name={"name"}
                 label={"Nome"}
@@ -79,7 +79,7 @@ const Form = () => {
                 InputLabelProps={{shrink:true}}
 
             >
-                <MenuItem value="">
+                <MenuItem value="" disabled>
                     <em>Selecione categorias</em>
                 </MenuItem>
                 <hr/>

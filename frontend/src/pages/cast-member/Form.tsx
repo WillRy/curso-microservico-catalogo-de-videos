@@ -31,7 +31,7 @@ export const Form = () => {
 
     useEffect(() => {
         register( {name: "type"});
-    }, []);
+    }, [register]);
 
     const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setValue('type', parseInt(event.target.value));
@@ -54,7 +54,7 @@ export const Form = () => {
 
             />
 
-            <FormControl component="fieldset"  margin={"normal"}>
+            <FormControl margin={"normal"}>
                 <FormLabel component="legend">Tipo</FormLabel>
                 <RadioGroup aria-label="tipo"
                             name={"type"}
