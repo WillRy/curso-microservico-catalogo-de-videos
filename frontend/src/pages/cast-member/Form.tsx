@@ -23,8 +23,9 @@ export const Form = () => {
     const classes = useStyles();
 
     const buttonProps: ButtonProps = {
-        variant: 'outlined',
-        className: classes.submit
+        className: classes.submit,
+        color: "secondary",
+        variant: 'contained'
     };
 
     const {register, handleSubmit, getValues, setValue, watch} = useForm();
@@ -60,13 +61,13 @@ export const Form = () => {
                             name={"type"}
                             onChange={handleRadioChange}
                             value={watch('type')+""}>
-                    <FormControlLabel value="1" control={<Radio />} label="Diretor" />
-                    <FormControlLabel value="2" control={<Radio />} label="Ator" />
+                    <FormControlLabel value="1" control={<Radio color={"primary"}/>} label="Diretor" />
+                    <FormControlLabel value="2" control={<Radio color={"primary"}/>} label="Ator" />
                 </RadioGroup>
             </FormControl>
 
             <Box dir={"rtl"}>
-                <Button {...buttonProps} type="button" onClick={() => onSubmit(getValues(), null)}>Salvar</Button>
+                <Button color={"primary"} {...buttonProps} type="button" onClick={() => onSubmit(getValues(), null)}>Salvar</Button>
                 <Button {...buttonProps} type="submit">Salvar e continuar editando</Button>
             </Box>
         </form>
