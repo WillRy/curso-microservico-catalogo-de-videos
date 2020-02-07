@@ -9,11 +9,12 @@ import Table from "./Table";
 const PageList = () => {
     return (
         <Page title="Listagem de categorias">
-            <Box dir={'rtl'}>
+            <Box dir={'rtl'} paddingBottom={2}>
                 <Fab
                 title="Adicionar Categoria"
                 size="small"
                 component={Link} to={"/categories/create"}
+                color={"secondary"}
                 >
                     <Add/>
                 </Fab>
