@@ -58,7 +58,7 @@ export const Form = () => {
             reset(data.data);
         }).finally(() => setLoading(false));
 
-    }, []);
+    }, [id, reset]);
 
     function onSubmit(formData, event) {
         setLoading(true);

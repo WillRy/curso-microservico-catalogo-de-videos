@@ -54,7 +54,7 @@ export const Form = () => {
             })
             .finally(() => setLoading(false))
 
-    }, []);
+    }, [id, reset]);
 
 
 

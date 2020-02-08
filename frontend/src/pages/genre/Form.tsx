@@ -59,7 +59,7 @@ const Form = () => {
             const categories = data.data.categories.map(category => category.id);
             reset({...data.data, categories_id: categories });
         }).finally(() => setLoading(false));
-    }, []);
+    }, [id, reset]);
 
 
     const  handleCategoriesChange = (event: React.ChangeEvent<{ value: unknown }>) => {
