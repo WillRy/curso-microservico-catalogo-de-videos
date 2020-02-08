@@ -1,10 +1,12 @@
 import * as React from 'react';
 import {Page} from "../../components/Page";
 import Form from "./Form";
+import { useParams } from 'react-router-dom';
 
 const PageForm = () => {
+    const {id} = useParams();
     return (
-        <Page title={"Cadastro de gêneros"}>
+        <Page title={!id ? "Cadastro de gêneros" : "Editar gênero"}>
             <Form/>
         </Page>
     );
