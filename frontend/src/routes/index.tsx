@@ -3,9 +3,9 @@ import Dashboard from "../pages/Dashboard";
 import CategoryList from '../pages/category/PageList';
 import CastMemberList from '../pages/cast-member/PageList';
 import GenreList from '../pages/genre/PageList';
-import CategoryCreate from '../pages/category/PageForm';
-import CastMemberCreate from '../pages/cast-member/PageForm';
-import GenreCreate from '../pages/genre/PageForm';
+import CategoryForm from '../pages/category/PageForm';
+import CastMemberForm from '../pages/cast-member/PageForm';
+import GenreForm from '../pages/genre/PageForm';
 
 export interface MyRouteProps extends RouteProps{
     label: string,
@@ -29,16 +29,16 @@ const routes:MyRouteProps[] = [
     },
     {
         name: 'categories.create',
-        label: 'Criar categorias',
+        label: 'Criar categoria',
         path: '/categories/create',
-        component: CategoryCreate,
+        component: CategoryForm,
         exact: true
     },
     {
         name: 'categories.edit',
         label: 'Editar categoria',
         path: '/categories/:id/edit',
-        component: CategoryList,
+        component: CategoryForm,
         exact: true
     },
     {
@@ -50,16 +50,16 @@ const routes:MyRouteProps[] = [
     },
     {
         name: 'cast_members.create',
-        label: 'Criar membros de elencos',
+        label: 'Criar membro de elencos',
         path: '/cast-members/create',
-        component: CastMemberCreate,
+        component: CastMemberForm,
         exact: true
     },
     {
         name: 'cast_members.edit',
-        label: 'Editar membros de elencos',
+        label: 'Editar membro de elencos',
         path: '/cast-members/:id/edit',
-        component: CastMemberList,
+        component: CastMemberForm,
         exact: true
     },
     {
@@ -71,16 +71,16 @@ const routes:MyRouteProps[] = [
     },
     {
         name: 'genres.create',
-        label: 'Criar gêneros',
+        label: 'Criar gênero',
         path: '/genres/create',
-        component: GenreCreate,
+        component: GenreForm,
         exact: true
     },
     {
         name: 'genres.edit',
-        label: 'Editar gêneros',
+        label: 'Editar gênero',
         path: '/genres/:id/edit',
-        component: GenreList,
+        component: GenreForm,
         exact: true
     }
 
