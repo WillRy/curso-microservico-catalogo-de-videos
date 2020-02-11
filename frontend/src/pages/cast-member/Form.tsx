@@ -19,8 +19,8 @@ import SubmitButtons from "../../components/SubmitButtons";
 
 
 const validationSchema = yup.object().shape({
-    name: yup.string().required().max(255).label('nome'),
-    type: yup.number().required().label('tipo')
+    name: yup.string().label('Nome').required().max(255),
+    type: yup.number().label('Tipo').required()
 });
 
 export const Form = () => {
@@ -46,24 +46,33 @@ export const Form = () => {
             return;
         }
 
-        setLoading(true);
-        castMemberHttp.get(id)
-            .then(({data}) => {
+        async function getCastMember() {
+            setLoading(true);
+            try {
+                const {data} = await castMemberHttp.get(id);
                 setCastMember(data.data);
                 reset(data.data);
-            })
-            .finally(() => setLoading(false))
 
-    }, [id, reset]);
+                setLoading(false);
+            } catch (e) {
+                console.log(e);
+                snackbar.enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        getCastMember();
+
+    }, [id, reset, snackbar]);
 
 
 
-    function onSubmit(formData, event) {
+    async function onSubmit(formData, event) {
         setLoading(true);
-
-        const http = !castMember ? castMemberHttp.create(formData) : castMemberHttp.update(castMember.id, formData);
-
-        http.then(({data}) => {
+        try {
+            const http = !castMember ? castMemberHttp.create(formData) : castMemberHttp.update(castMember.id, formData);
+            const {data} = await http;
             snackbar.enqueueSnackbar("Membro de elenco salvo com sucesso!", {variant: "success"});
             setLoading(false);
             event
@@ -74,17 +83,16 @@ export const Form = () => {
                         : history.push(`/cast-members/${data.data.id}/edit`)
                 )
                 :   history.push("/cast-members");
-        }).catch(error => {
-            console.log(error);
+        } catch (e) {
+            console.log(e);
             snackbar.enqueueSnackbar("Não foi possível salvar Membro de elenco!", {variant: "error"});
             setLoading(false);
-        });
-
+        }
     }
 
     function validateSubmit(){
         triggerValidation()
-            .then(isValid => isValid && onSubmit(getValues(), null));
+            .then(isValid => {isValid && onSubmit(getValues(), null)});
     }
 
 
@@ -117,11 +125,10 @@ export const Form = () => {
                     <FormControlLabel value="1" control={<Radio color={"primary"}/>} label="Diretor" />
                     <FormControlLabel value="2" control={<Radio color={"primary"}/>} label="Ator" />
                 </RadioGroup>
+                {
+                    (errors as any).type && <FormHelperText id="type-helper-text">{(errors as any).type.message}</FormHelperText>
+                }
             </FormControl>
-            {
-                (errors as any).type &&  <FormHelperText id="type-helper-text">{(errors as any).type.message}</FormHelperText>
-            }
-
             <SubmitButtons disabledButtons={loading} handleSave={validateSubmit}/>
         </form>
     );

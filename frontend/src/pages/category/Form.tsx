@@ -46,24 +46,37 @@ export const Form = () => {
         register({name: 'is_active'});
     }, [register]);
 
+
+
     useEffect(() => {
 
         if(!id){
             return;
         }
 
-        setLoading(true);
-        categoryHttp.get(id).then(({data}) => {
-            setCategory(data.data);
-            reset(data.data);
-        }).finally(() => setLoading(false));
+        async function getCategory(){
+            setLoading(true);
+            try {
+                const {data} = await categoryHttp.get(id);
+                setCategory(data.data);
+                reset(data.data);
+            }catch (e) {
+                console.log(e);
+                snackbar.enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
+            } finally {
+                setLoading(false)
+            }
+        }
 
-    }, [id, reset]);
+        getCategory();
 
-    function onSubmit(formData, event) {
+    }, [id, reset, snackbar]);
+
+    async function onSubmit(formData, event) {
         setLoading(true);
-        const http = !category ? categoryHttp.create(formData) : categoryHttp.update(category.id, formData);
-        http.then(({data}) => {
+        try {
+            const http = !category ? categoryHttp.create(formData) : categoryHttp.update(category.id, formData);
+            const {data} = await http;
             snackbar.enqueueSnackbar('Categoria salva com sucesso!', {variant: "success"});
             setLoading(false);
             event
@@ -73,16 +86,16 @@ export const Form = () => {
                         : history.push(`/categories/${data.data.id}/edit`)
                 )
                 : history.push('/categories');
-        }).catch((error) => {
-            console.log(error);
+        } catch (e) {
+            console.log(e);
             snackbar.enqueueSnackbar('Não foi possível salvar a categoria!', {variant: "error"});
             setLoading(false)
-        });
+        }
     }
 
     function validateSubmit(){
         triggerValidation()
-            .then(isValid => isValid && onSubmit(getValues(), null));
+            .then(isValid => {isValid && onSubmit(getValues(), null)});
     }
 
     return (

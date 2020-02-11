@@ -13,13 +13,10 @@ import Genre from "../../util/models";
 import * as yup from '../../util/vendor/yup';
 import SubmitButtons from "../../components/SubmitButtons";
 
-
-
 const validationSchema = yup.object().shape({
-    name: yup.string().label('nome').required().max(255),
-    categories_id: yup.array().required().label("categorias")
+    name: yup.string().label('Nome').required().max(255),
+    categories_id: yup.array().label("Categorias").required()
 });
-
 
 const Form = () => {
 
@@ -44,34 +41,55 @@ const Form = () => {
     }, [register]);
 
     useEffect(() => {
-        setLoading(true);
-        categoryHttp.list().then(response => setCategories(response.data.data)).finally(() => setLoading(false));
-    }, []);
 
-    useEffect(() => {
-        if(!id){
-            return;
+        async function loadData(){
+
+            setLoading(true);
+
+            const promises = [categoryHttp.list()];
+
+            if(id){
+                promises.push(genreHttp.get(id));
+            }
+
+            try {
+                const [categoriesResponse, genreResponse] = await Promise.all(promises);
+
+                setCategories(categoriesResponse.data.data);
+
+                if(id) {
+                    setGenre(genreResponse.data.data);
+                    const categories_id = genreResponse.data.data.categories.map(category => category.id);
+                    reset( {
+                        ...genreResponse.data.data,
+                        categories_id
+                    });
+                }
+
+
+            } catch (e) {
+                console.log(e);
+                snackbar.enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
+            } finally {
+                setLoading(false);
+            }
         }
 
-        setLoading(true);
-        genreHttp.get(id).then(({data}) => {
-            setGenre(data.data);
-            const categories = data.data.categories.map(category => category.id);
-            reset({...data.data, categories_id: categories });
-        }).finally(() => setLoading(false));
-    }, [id, reset]);
+        loadData();
+
+    }, [id, reset, snackbar]);
 
 
     const  handleCategoriesChange = (event: React.ChangeEvent<{ value: unknown }>) => {
         setValue('categories_id', event.target.value as Array<any>);
     };
 
-    const onSubmit = (formData, event) => {
+    async function onSubmit(formData, event)  {
         setLoading(true);
 
-        const http = !genre ? genreHttp.create(formData) : genreHttp.update(genre.id, formData);
-
-        http.then(({data}) => {
+        try {
+            const http = !genre ? genreHttp.create(formData) : genreHttp.update(genre.id, formData);
+            const {data} = await http;
             snackbar.enqueueSnackbar("Gênero salvo com sucesso!", {variant:"success"});
             setLoading(false);
 
@@ -82,18 +100,18 @@ const Form = () => {
                         : history.push(`/genres/${data.data.id}/edit`)
                 )
                 : history.push('/genres');
-
-        }).catch(error => {
-            console.log(error);
+        } catch (e) {
+            console.log(e);
             snackbar.enqueueSnackbar("Não foi possível salvar o gênero", {variant:"error"});
             setLoading(false);
-        });
 
-    };
+        }
+
+    }
 
     function validateSubmit(){
         triggerValidation()
-            .then(isValid => isValid && onSubmit(getValues(), null));
+            .then(isValid => {isValid && onSubmit(getValues(), null)});
     }
 
     return (

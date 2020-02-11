@@ -29,7 +29,7 @@ const routes:MyRouteProps[] = [
     },
     {
         name: 'categories.create',
-        label: 'Criar categorias',
+        label: 'Criar categoria',
         path: '/categories/create',
         component: CategoryForm,
         exact: true
@@ -50,14 +50,14 @@ const routes:MyRouteProps[] = [
     },
     {
         name: 'cast_members.create',
-        label: 'Criar membros de elencos',
+        label: 'Criar membro de elencos',
         path: '/cast-members/create',
         component: CastMemberForm,
         exact: true
     },
     {
         name: 'cast_members.edit',
-        label: 'Editar membros de elencos',
+        label: 'Editar membro de elencos',
         path: '/cast-members/:id/edit',
         component: CastMemberForm,
         exact: true
@@ -71,14 +71,14 @@ const routes:MyRouteProps[] = [
     },
     {
         name: 'genres.create',
-        label: 'Criar gêneros',
+        label: 'Criar gênero',
         path: '/genres/create',
         component: GenreForm,
         exact: true
     },
     {
         name: 'genres.edit',
-        label: 'Editar gêneros',
+        label: 'Editar gênero',
         path: '/genres/:id/edit',
         component: GenreForm,
         exact: true
