@@ -3,8 +3,8 @@ import MUIDataTable, {MUIDataTableColumn} from "mui-datatables";
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import {useEffect, useState} from "react";
-import {httpVideo} from "../../util/http";
 import {BadgeNo, BadgeYes} from "../../components/Badge";
+import genreHttp from "../../util/http/genres-http";
 
 
 const columnsDefinitions: MUIDataTableColumn[] = [
@@ -56,10 +56,10 @@ export const Table = () => {
     const [data, setData] = useState([]);
 
     useEffect(() => {
-        httpVideo.get('/genres').then(response => {
-            console.log(response.data.data);
-            setData(response.data.data);
-        })
+        (async () => {
+            const {data} = await genreHttp.list();
+            setData(data.data);
+        })();
     }, []);
 
 

@@ -41,7 +41,10 @@ const Table = () => {
 
     useEffect(() => {
 
-        categoryHttp.list<{data: Category[]}>().then(({data}) => setData(data.data));
+        (async () => {
+            const {data} = await categoryHttp.list();
+            setData(data.data);
+        })();
 
     }, []);
 

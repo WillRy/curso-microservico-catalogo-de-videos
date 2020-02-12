@@ -27,7 +27,7 @@ const Form = () => {
         validationSchema
     });
 
-    const snackbar = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
     const history = useHistory();
     const {id} = useParams();
     const [categories, setCategories] = useState<Category[]>( []);
@@ -69,7 +69,7 @@ const Form = () => {
 
             } catch (e) {
                 console.log(e);
-                snackbar.enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
+                enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
             } finally {
                 setLoading(false);
             }
@@ -77,7 +77,7 @@ const Form = () => {
 
         loadData();
 
-    }, [id, reset, snackbar]);
+    }, [id, reset, enqueueSnackbar]);
 
 
     const  handleCategoriesChange = (event: React.ChangeEvent<{ value: unknown }>) => {
@@ -90,7 +90,7 @@ const Form = () => {
         try {
             const http = !genre ? genreHttp.create(formData) : genreHttp.update(genre.id, formData);
             const {data} = await http;
-            snackbar.enqueueSnackbar("Gênero salvo com sucesso!", {variant:"success"});
+            enqueueSnackbar("Gênero salvo com sucesso!", {variant:"success"});
             setLoading(false);
 
             event
@@ -102,7 +102,7 @@ const Form = () => {
                 : history.push('/genres');
         } catch (e) {
             console.log(e);
-            snackbar.enqueueSnackbar("Não foi possível salvar o gênero", {variant:"error"});
+            enqueueSnackbar("Não foi possível salvar o gênero", {variant:"error"});
             setLoading(false);
 
         }

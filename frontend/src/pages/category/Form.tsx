@@ -35,7 +35,7 @@ export const Form = () => {
         validationSchema
     });
 
-    const snackbar = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
     const history = useHistory();
     const {id} = useParams();
     const [category, setCategory] = useState<Category| null>(null);
@@ -54,7 +54,7 @@ export const Form = () => {
             return;
         }
 
-        async function getCategory(){
+        (async function getCategory(){
             setLoading(true);
             try {
                 const {data} = await categoryHttp.get(id);
@@ -62,22 +62,21 @@ export const Form = () => {
                 reset(data.data);
             }catch (e) {
                 console.log(e);
-                snackbar.enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
+                enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
             } finally {
                 setLoading(false)
             }
-        }
+        })();
 
-        getCategory();
 
-    }, [id, reset, snackbar]);
+    }, [id, reset, enqueueSnackbar]);
 
     async function onSubmit(formData, event) {
         setLoading(true);
         try {
             const http = !category ? categoryHttp.create(formData) : categoryHttp.update(category.id, formData);
             const {data} = await http;
-            snackbar.enqueueSnackbar('Categoria salva com sucesso!', {variant: "success"});
+            enqueueSnackbar('Categoria salva com sucesso!', {variant: "success"});
             setLoading(false);
             event
                 ? (
@@ -88,7 +87,7 @@ export const Form = () => {
                 : history.push('/categories');
         } catch (e) {
             console.log(e);
-            snackbar.enqueueSnackbar('Não foi possível salvar a categoria!', {variant: "error"});
+            enqueueSnackbar('Não foi possível salvar a categoria!', {variant: "error"});
             setLoading(false)
         }
     }

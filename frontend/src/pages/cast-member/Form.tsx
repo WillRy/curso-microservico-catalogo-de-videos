@@ -30,11 +30,13 @@ export const Form = () => {
         validationSchema
     });
 
-    const snackbar = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
     const history = useHistory();
     const {id} = useParams();
     const [castMember, setCastMember] = useState<CastMember | null>(null);
     const [loading, setLoading] = useState(false);
+
+
 
     useEffect(() => {
         register( {name: "type"});
@@ -46,25 +48,25 @@ export const Form = () => {
             return;
         }
 
-        async function getCastMember() {
+        (async function getCastMember() {
             setLoading(true);
             try {
                 const {data} = await castMemberHttp.get(id);
                 setCastMember(data.data);
                 reset(data.data);
-
                 setLoading(false);
+
             } catch (e) {
                 console.log(e);
-                snackbar.enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
+                enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
+
             } finally {
                 setLoading(false);
             }
-        }
+        })();
 
-        getCastMember();
 
-    }, [id, reset, snackbar]);
+    }, [id, reset, enqueueSnackbar]);
 
 
 
@@ -73,7 +75,7 @@ export const Form = () => {
         try {
             const http = !castMember ? castMemberHttp.create(formData) : castMemberHttp.update(castMember.id, formData);
             const {data} = await http;
-            snackbar.enqueueSnackbar("Membro de elenco salvo com sucesso!", {variant: "success"});
+            enqueueSnackbar("Membro de elenco salvo com sucesso!", {variant: "success"});
             setLoading(false);
             event
                 ?
@@ -84,8 +86,7 @@ export const Form = () => {
                 )
                 :   history.push("/cast-members");
         } catch (e) {
-            console.log(e);
-            snackbar.enqueueSnackbar("Não foi possível salvar Membro de elenco!", {variant: "error"});
+            enqueueSnackbar("Não foi possível salvar Membro de elenco!", {variant: "error"});
             setLoading(false);
         }
     }
