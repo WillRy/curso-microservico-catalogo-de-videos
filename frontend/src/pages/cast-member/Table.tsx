@@ -46,10 +46,18 @@ const Table = () => {
     const [data, setData] = useState([]);
 
     useEffect(() => {
+
+        let isSubscribed = true;
+
         (async () => {
             const {data} = await castMemberHttp.list();
-            setData(data.data);
+            if(isSubscribed){
+                setData(data.data);
+            }
+
         })();
+
+        return () => { isSubscribed = false }
     }, []);
 
     return (
