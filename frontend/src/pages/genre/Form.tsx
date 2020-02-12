@@ -5,13 +5,13 @@ import {useEffect, useState} from "react";
 import categoryHttp from "../../util/http/category-http";
 import {useForm} from "react-hook-form";
 import genreHttp from "../../util/http/genres-http";
-import Category from "../../util/models";
+import {Category, simpleResponse} from "../../util/models";
 import {useParams} from 'react-router';
 import { useHistory } from 'react-router-dom';
 import {useSnackbar} from "notistack";
-import Genre from "../../util/models";
+import {Genre} from "../../util/models";
 import * as yup from '../../util/vendor/yup';
-import SubmitButtons from "../../components/SubmitButtons";
+import SubmitActions from "../../components/SubmitActions";
 
 const validationSchema = yup.object().shape({
     name: yup.string().label('Nome').required().max(255),
@@ -91,7 +91,10 @@ const Form = () => {
         setLoading(true);
 
         try {
-            const http = !genre ? genreHttp.create(formData) : genreHttp.update(genre.id, formData);
+            const http = !genre
+                ? genreHttp.create<simpleResponse<Genre>>(formData)
+                : genreHttp.update<simpleResponse<Genre>>(genre.id, formData);
+
             const {data} = await http;
             enqueueSnackbar("Gênero salvo com sucesso!", {variant:"success"});
             setLoading(false);
@@ -163,7 +166,7 @@ const Form = () => {
 
             </TextField>
 
-            <SubmitButtons disabledButtons={loading} handleSave={validateSubmit}/>
+            <SubmitActions disabledButtons={loading} handleSave={validateSubmit}/>
         </form>
     );
 };
