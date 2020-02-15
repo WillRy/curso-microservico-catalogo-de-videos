@@ -5,11 +5,12 @@ import categoryHttp from "../../util/http/category-http";
 import * as yup from '../../util/vendor/yup';
 import {useEffect, useState} from "react";
 import {useParams} from 'react-router';
-import Category from "../../util/models";
+import {Category, simpleResponse} from "../../util/models";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import { useHistory } from 'react-router-dom';
 import {useSnackbar} from "notistack";
-import SubmitButtons from "../../components/SubmitButtons";
+import SubmitActions from "../../components/SubmitActions";
+import {DefaultForm} from "../../components/DefaultForm";
 
 
 
@@ -74,7 +75,10 @@ export const Form = () => {
     async function onSubmit(formData, event) {
         setLoading(true);
         try {
-            const http = !category ? categoryHttp.create(formData) : categoryHttp.update(category.id, formData);
+            const http = !category
+                ? categoryHttp.create<simpleResponse<Category>>(formData)
+                : categoryHttp.update<simpleResponse<Category>>(category.id, formData);
+
             const {data} = await http;
             enqueueSnackbar('Categoria salva com sucesso!', {variant: "success"});
             setLoading(false);
@@ -98,7 +102,8 @@ export const Form = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+
+        <DefaultForm GridItemProps={{xs: 12, md: 6}} onSubmit={handleSubmit(onSubmit)}>
             <TextField
                 name="name"
                 label="Nome"
@@ -121,7 +126,6 @@ export const Form = () => {
                 inputRef={register}
                 disabled={loading}
                 InputLabelProps={{shrink: true}}
-
             />
 
             <FormControlLabel
@@ -137,8 +141,7 @@ export const Form = () => {
                 labelPlacement={"end"}
                 disabled={loading as boolean}/>
 
-            <SubmitButtons disabledButtons={loading} handleSave={validateSubmit}/>
-
-        </form>
+            <SubmitActions disabledButtons={loading} handleSave={validateSubmit}/>
+        </DefaultForm>
     );
 };

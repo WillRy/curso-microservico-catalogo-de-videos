@@ -4,8 +4,9 @@ import {useEffect, useState} from "react";
 import format from 'date-fns/format';
 import parseISO from 'date-fns/parseISO';
 import categoryHttp from "../../util/http/category-http";
-import Category from "../../util/models";
+import {Category} from "../../util/models";
 import {BadgeNo, BadgeYes} from "../../components/Badge";
+import {listResponse} from "../../util/models";
 
 const columnsDefinitions: MUIDataTableColumn[] = [
     {
@@ -40,11 +41,17 @@ const Table = () => {
     const [data, setData] = useState<Category[]>([]);
 
     useEffect(() => {
+        let isSubscribed = true;
 
         (async () => {
-            const {data} = await categoryHttp.list();
-            setData(data.data);
+            const {data} = await categoryHttp.list<listResponse<Category>>();
+            if(isSubscribed){
+                setData(data.data);
+            }
+
         })();
+
+        return () => { isSubscribed = false }
 
     }, []);
 

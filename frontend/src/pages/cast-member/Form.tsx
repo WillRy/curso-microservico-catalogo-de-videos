@@ -12,9 +12,9 @@ import * as yup from '../../util/vendor/yup';
 import { useHistory } from 'react-router-dom';
 import {useSnackbar} from "notistack";
 import {useParams} from 'react-router';
-import CastMember from "../../util/models";
+import {CastMember, simpleResponse} from "../../util/models";
 import FormHelperText from "@material-ui/core/FormHelperText";
-import SubmitButtons from "../../components/SubmitButtons";
+import SubmitActions from "../../components/SubmitActions";
 
 
 
@@ -73,7 +73,10 @@ export const Form = () => {
     async function onSubmit(formData, event) {
         setLoading(true);
         try {
-            const http = !castMember ? castMemberHttp.create(formData) : castMemberHttp.update(castMember.id, formData);
+            const http = !castMember
+                ? castMemberHttp.create<simpleResponse<CastMember>>(formData)
+                : castMemberHttp.update<simpleResponse<CastMember>>(castMember.id, formData);
+
             const {data} = await http;
             enqueueSnackbar("Membro de elenco salvo com sucesso!", {variant: "success"});
             setLoading(false);
@@ -130,7 +133,7 @@ export const Form = () => {
                     (errors as any).type && <FormHelperText id="type-helper-text">{(errors as any).type.message}</FormHelperText>
                 }
             </FormControl>
-            <SubmitButtons disabledButtons={loading} handleSave={validateSubmit}/>
+            <SubmitActions disabledButtons={loading} handleSave={validateSubmit}/>
         </form>
     );
 };
