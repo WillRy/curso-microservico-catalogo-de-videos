@@ -10,6 +10,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import { useHistory } from 'react-router-dom';
 import {useSnackbar} from "notistack";
 import SubmitActions from "../../components/SubmitActions";
+import {DefaultForm} from "../../components/DefaultForm";
 
 
 
@@ -101,7 +102,8 @@ export const Form = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+
+        <DefaultForm GridItemProps={{xs: 12, md: 6}} onSubmit={handleSubmit(onSubmit)}>
             <TextField
                 name="name"
                 label="Nome"
@@ -124,7 +126,6 @@ export const Form = () => {
                 inputRef={register}
                 disabled={loading}
                 InputLabelProps={{shrink: true}}
-
             />
 
             <FormControlLabel
@@ -141,7 +142,6 @@ export const Form = () => {
                 disabled={loading as boolean}/>
 
             <SubmitActions disabledButtons={loading} handleSave={validateSubmit}/>
-
-        </form>
+        </DefaultForm>
     );
 };
