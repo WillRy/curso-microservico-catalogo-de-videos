@@ -89,7 +89,6 @@ const Table: React.FC<TableProps> = (props) => {
     
 
     const theme = cloneDeep<Theme>(useTheme());
-
     const isSmOrDown = useMediaQuery(theme.breakpoints.down('sm'));
     
 
@@ -104,12 +103,10 @@ const Table: React.FC<TableProps> = (props) => {
 
     const originalProps = getOriginalMuiDataTableProps();
 
-
     return (
         <MuiThemeProvider theme={theme}>
             <MUIDataTable {...originalProps} />
         </MuiThemeProvider>
-
     );
 };
 

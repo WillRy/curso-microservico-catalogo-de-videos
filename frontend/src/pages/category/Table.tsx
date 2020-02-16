@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import format from 'date-fns/format';
 import parseISO from 'date-fns/parseISO';
 import categoryHttp from "../../util/http/category-http";
@@ -8,6 +8,7 @@ import {BadgeNo, BadgeYes} from "../../components/Badge";
 import {listResponse} from "../../util/models";
 import DefaultTable, {TableColumn} from '../../components/Table';
 import {useSnackbar} from "notistack";
+
 
 const columnsDefinitions: TableColumn[] = [
     {
@@ -51,40 +52,158 @@ const columnsDefinitions: TableColumn[] = [
     }
 ];
 
+interface Pagination{
+    page: number;
+    total: number;
+    per_page: number;
+}
 
+interface Order{
+    sort: string | null;
+    dir: string | null;
+}
+
+interface SearchState {
+    search: string;
+    pagination: Pagination;
+    order: Order;
+}
 
 const Table = () => {
 
+    const {enqueueSnackbar} = useSnackbar();
+    const subscribed = useRef(true); // {current: true}
     const [data, setData] = useState<Category[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const {enqueueSnackbar} = useSnackbar();
+    const [searchState, setSearchState] = useState<SearchState>({
+        search: '',
+        pagination: {
+            page: 1,
+            total: 0,
+            per_page: 10
+        },
+        order: {
+            sort: null,
+            dir: null
+        }
+    });
 
     useEffect(() => {
-        let isSubscribed = true;
+        console.log('montou');
+        return () => {console.log('desmontou')}
+    }, [searchState]);
 
-        (async () => {
-            setLoading(true);
 
-            try {
-                const {data} = await categoryHttp.list<listResponse<Category>>();
-
-                if(isSubscribed){
-                    setData(data.data);
+    const columns = columnsDefinitions.map(column => {
+        return (column.name === searchState.order.sort)
+            ?
+            {
+                ...column,
+                options: {
+                    ...column.options,
+                    sortDirection: searchState.order.dir as any
                 }
-            }catch (e) {
-                console.log(e);
-                enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
-            } finally {
-                setLoading(false);
             }
-        })();
+            : column;
+    });
 
-        return () => { isSubscribed = false }
+    useEffect(() => {
+        subscribed.current = true;
+        getData();
 
-    }, [enqueueSnackbar]);
+        return () => {subscribed.current = false}
+    }, [
+        searchState.search,
+        searchState.pagination.page,
+        searchState.pagination.per_page,
+        searchState.order
+    ]);
+
+    async function getData(){
+        setLoading(true);
+
+        try {
+            const {data} = await categoryHttp.list<listResponse<Category>>(
+                {
+                    queryParams: {
+                        search: searchState.search,
+                        page: searchState.pagination.page,
+                        per_page: searchState.pagination.per_page,
+                        sort: searchState.order.sort,
+                        dir: searchState.order.dir
+                    }
+                }
+            );
+
+            if(subscribed.current){
+                setData(data.data);
+                setSearchState(prevState => ({
+                    ...prevState,
+                    pagination: {
+                        ...prevState.pagination,
+                        total: data.meta.total
+                    },
+
+                }))
+            }
+        }catch (e) {
+            console.log(e);
+            if(categoryHttp.isCancelledRequest(e)){
+                return;
+            }
+            enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
+        } finally {
+            setLoading(false);
+        }
+    }
 
     return (
-        <DefaultTable title="Categorias" columns={columnsDefinitions} data={data} loading={loading}/>
+        <DefaultTable
+            title="Categorias"
+            columns={columns}
+            data={data}
+            loading={loading}
+            options={{
+                searchText: searchState.search,
+                page: searchState.pagination.page - 1,
+                rowsPerPage: searchState.pagination.per_page,
+                count: searchState.pagination.total,
+                serverSide: true,
+                onSearchChange: (value) => {
+                    setSearchState(prevState => ({
+                        ...prevState,
+                        search: value
+                    }))
+                },
+                onChangePage: (page) => {
+                    setSearchState(prevState => ({
+                        ...prevState,
+                        pagination: {
+                            ...prevState.pagination,
+                            page: page + 1
+                        }
+                    }))
+                },
+                onChangeRowsPerPage: (per_page) => {
+                    setSearchState(prevState => ({
+                        ...prevState,
+                        pagination: {
+                            ...prevState.pagination,
+                            per_page: per_page
+                        }
+                    }))
+                },
+                onColumnSortChange: (changedColumn: string, direction: string) => {
+                    setSearchState(prevState => ({
+                        ...prevState,
+                        order: {
+                            sort: changedColumn,
+                            dir: direction.includes('desc') ? 'desc' : 'asc'
+                        }
+                    }))
+                }
+            }}
+        />
     );
 };
 
