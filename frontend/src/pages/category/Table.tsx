@@ -8,6 +8,7 @@ import {BadgeNo, BadgeYes} from "../../components/Badge";
 import {listResponse} from "../../util/models";
 import DefaultTable, {TableColumn} from '../../components/Table';
 import {useSnackbar} from "notistack";
+import FilterResetButton from "../../components/Table/FilterResetButton";
 
 
 const columnsDefinitions: TableColumn[] = [
@@ -71,11 +72,7 @@ interface SearchState {
 
 const Table = () => {
 
-    const {enqueueSnackbar} = useSnackbar();
-    const subscribed = useRef(true); // {current: true}
-    const [data, setData] = useState<Category[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [searchState, setSearchState] = useState<SearchState>({
+    const initialState = {
         search: '',
         pagination: {
             page: 1,
@@ -86,7 +83,13 @@ const Table = () => {
             sort: null,
             dir: null
         }
-    });
+    };
+
+    const {enqueueSnackbar} = useSnackbar();
+    const subscribed = useRef(true); // {current: true}
+    const [data, setData] = useState<Category[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [searchState, setSearchState] = useState<SearchState>(initialState);
 
     useEffect(() => {
         console.log('montou');
@@ -126,7 +129,7 @@ const Table = () => {
             const {data} = await categoryHttp.list<listResponse<Category>>(
                 {
                     queryParams: {
-                        search: searchState.search,
+                        search: clearSearchText(searchState.search),
                         page: searchState.pagination.page,
                         per_page: searchState.pagination.per_page,
                         sort: searchState.order.sort,
@@ -157,22 +160,45 @@ const Table = () => {
         }
     }
 
+    function clearSearchText(text){
+        let newText = text;
+        if(text && text.value !== undefined){
+            newText = text.value;
+        }
+        return newText;
+    }
+
     return (
         <DefaultTable
             title="Categorias"
             columns={columns}
             data={data}
             loading={loading}
+            debouncedSearchTime={300}
             options={{
+                serverSide: true,
                 searchText: searchState.search,
                 page: searchState.pagination.page - 1,
                 rowsPerPage: searchState.pagination.per_page,
                 count: searchState.pagination.total,
-                serverSide: true,
+                customToolbar: () => {
+                    return <FilterResetButton handleClick={() => {
+                        setSearchState({
+                            ...initialState,
+                            search: {
+                                value: initialState.search
+                            } as any
+                        })
+                    }}/>
+                },
                 onSearchChange: (value) => {
                     setSearchState(prevState => ({
                         ...prevState,
-                        search: value
+                        search: value,
+                        pagination: {
+                            ...prevState.pagination,
+                            page: 1
+                        }
                     }))
                 },
                 onChangePage: (page) => {
