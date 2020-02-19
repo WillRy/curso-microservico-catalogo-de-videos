@@ -27,6 +27,10 @@ const defaultSearchStyles = theme => ({
     },
 });
 
+//funcao pura -> mesmo argumento, mesmo retorno
+//entao react verifica se tem as mesmas props, caso tenha, ignora
+
+//impura -> resultados diferentes, ele precisa re renderizar
 class DebouncedTableSearch extends React.PureComponent {
 
     constructor(props) {
@@ -44,6 +48,7 @@ class DebouncedTableSearch extends React.PureComponent {
         };
         this.debouncedOnSearch = debounce( this.debouncedOnSearch.bind(this), this.props.debouceTime);
     }
+
     handleTextChange = event => {
         const value = event.target.value;
         this.setState( {
@@ -63,8 +68,11 @@ class DebouncedTableSearch extends React.PureComponent {
         if(searchText && searchText.value !== undefined && prevProps.searchText !== this.props.searchText) {
             const value = searchText.value;
 
+            /**
+             * O construtor executa somente uma vez, quando está destruido/inexistente e o componente
+             * vai ser montado, porém, após ele estar montado, preciso mudar o estado ao dar reset
+             */
             if(value) {
-
                 this.setState( {
                     text: value
                 }, () => this.props.onSearch(value));
@@ -96,14 +104,8 @@ class DebouncedTableSearch extends React.PureComponent {
     };
 
     render() {
-        const { classes, options, onHide, searchText } = this.props;
-
+        const { classes, options, onHide } = this.props;
         let value = this.state.text;
-
-        if(searchText && searchText.value !== undefined) {
-
-            value = searchText.value;
-        }
 
         return (
             <Grow appear in={true} timeout={300}>
@@ -119,7 +121,6 @@ class DebouncedTableSearch extends React.PureComponent {
                         value={value || ''}
                         onChange={this.handleTextChange}
                         fullWidth={true}
-                        inputRef={el => (this.searchField = el)}
                         placeholder={options.searchPlaceholder}
                     />
                     <IconButton className={classes.clearIcon} onClick={onHide}>
