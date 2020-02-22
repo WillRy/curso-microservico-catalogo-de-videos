@@ -1,15 +1,15 @@
 import * as React from 'react';
-import {useEffect, useReducer, useRef, useState} from "react";
+import {useEffect, useRef, useState} from 'react';
 import format from 'date-fns/format';
 import parseISO from 'date-fns/parseISO';
 import categoryHttp from "../../util/http/category-http";
-import {Category} from "../../util/models";
+import {Category, listResponse} from "../../util/models";
 import {BadgeNo, BadgeYes} from "../../components/Badge";
-import {listResponse} from "../../util/models";
 import DefaultTable, {TableColumn} from '../../components/Table';
 import {useSnackbar} from "notistack";
 import FilterResetButton from "../../components/Table/FilterResetButton";
-import reducer,{INITIAL_STATE, Creators} from '../../store/filter/index';
+import {Creators} from '../../store/filter';
+import useFilter from "../../hooks/useFilter";
 
 const columnsDefinitions: TableColumn[] = [
     {
@@ -70,44 +70,43 @@ interface SearchState {
     order: Order;
 }
 
+const debounceTime = 300;
+const debouncedSearchTime = 300;
+
 const Table = () => {
 
     const {enqueueSnackbar} = useSnackbar();
     const subscribed = useRef(true); // {current: true}
     const [data, setData] = useState<Category[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const [totalRecords, setTotalRecords] = useState<number>(0);
-    const [filterState, dispatch] = useReducer(reducer, INITIAL_STATE);
-
-    useEffect(() => {
-        console.log('montou');
-        return () => {console.log('desmontou')}
-    }, [filterState]);
-
-
-    const columns = columnsDefinitions.map(column => {
-        return (column.name === filterState.order.sort)
-            ?
-            {
-                ...column,
-                options: {
-                    ...column.options,
-                    sortDirection: filterState.order.dir as any
-                }
-            }
-            : column;
+    const {
+        filterManager,
+        filterState,
+        dispatch,
+        totalRecords,
+        setTotalRecords,
+        debouncedFilterState
+    } = useFilter({
+        columns: columnsDefinitions,
+        rowsPerPage: 10,
+        rowsPerPageOptions: [10, 25, 50],
+        debounceTime: debounceTime
     });
 
+
+
+
+    const filteredSearch = filterManager.clearSearchText(debouncedFilterState.search);
     useEffect(() => {
         subscribed.current = true;
         getData();
 
         return () => {subscribed.current = false}
     }, [
-        filterState.search,
-        filterState.pagination.page,
-        filterState.pagination.per_page,
-        filterState.order
+        filteredSearch,
+        debouncedFilterState.pagination.page,
+        debouncedFilterState.pagination.per_page,
+        debouncedFilterState.order
     ]);
 
     async function getData(){
@@ -117,7 +116,7 @@ const Table = () => {
             const {data} = await categoryHttp.list<listResponse<Category>>(
                 {
                     queryParams: {
-                        search: clearSearchText(filterState.search),
+                        search: filterManager.clearSearchText(filterState.search),
                         page: filterState.pagination.page,
                         per_page: filterState.pagination.per_page,
                         sort: filterState.order.sort,
@@ -141,21 +140,15 @@ const Table = () => {
         }
     }
 
-    function clearSearchText(text){
-        let newText = text;
-        if(text && text.value !== undefined){
-            newText = text.value;
-        }
-        return newText;
-    }
+
 
     return (
         <DefaultTable
             title="Categorias"
-            columns={columns}
+            columns={filterManager.columns}
             data={data}
             loading={loading}
-            debouncedSearchTime={300}
+            debouncedSearchTime={debouncedSearchTime}
             options={{
                 serverSide: true,
                 searchText: filterState.search as any,
@@ -165,13 +158,10 @@ const Table = () => {
                 customToolbar: () => {
                     return <FilterResetButton handleClick={() => dispatch(Creators.setReset())}/>
                 },
-                onSearchChange: (value) => dispatch(Creators.setSearch({search: value})),
-                onChangePage: (page) => dispatch(Creators.setPage({page: page + 1})),
-                onChangeRowsPerPage: (per_page) => dispatch(Creators.setPerPage({per_page: per_page})),
-                onColumnSortChange: (changedColumn: string, direction: string) => dispatch(Creators.setOrder({
-                    sort: changedColumn,
-                    dir:direction.includes('desc') ? 'desc' : 'asc'
-                }))
+                onSearchChange: (value) => filterManager.changeSearch(value),
+                onChangePage: (page) => filterManager.changePage(page),
+                onChangeRowsPerPage: (per_page) => filterManager.changeRowsPerPage(per_page),
+                onColumnSortChange: (changedColumn: string, direction: string) => filterManager.changeSort(changedColumn, direction)
             }}
         />
     );
