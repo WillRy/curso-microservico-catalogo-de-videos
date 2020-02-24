@@ -8,7 +8,6 @@ import {BadgeNo, BadgeYes} from "../../components/Badge";
 import DefaultTable, {TableColumn} from '../../components/Table';
 import {useSnackbar} from "notistack";
 import FilterResetButton from "../../components/Table/FilterResetButton";
-import {Creators} from '../../store/filter';
 import useFilter from "../../hooks/useFilter";
 
 const columnsDefinitions: TableColumn[] = [
@@ -53,25 +52,11 @@ const columnsDefinitions: TableColumn[] = [
     }
 ];
 
-interface Pagination{
-    page: number;
-    total: number;
-    per_page: number;
-}
-
-interface Order{
-    sort: string | null;
-    dir: string | null;
-}
-
-interface SearchState {
-    search: string;
-    pagination: Pagination;
-    order: Order;
-}
 
 const debounceTime = 300;
 const debouncedSearchTime = 300;
+const rowsPerPage = 15;
+const rowsPerPageOptions = [15, 25, 50];
 
 const Table = () => {
 
@@ -82,23 +67,23 @@ const Table = () => {
     const {
         filterManager,
         filterState,
-        dispatch,
         totalRecords,
         setTotalRecords,
         debouncedFilterState
     } = useFilter({
         columns: columnsDefinitions,
-        rowsPerPage: 10,
-        rowsPerPageOptions: [10, 25, 50],
-        debounceTime: debounceTime
+        rowsPerPage: rowsPerPage,
+        rowsPerPageOptions: rowsPerPageOptions,
+        debounceTime: debounceTime,
     });
 
 
-
-
     const filteredSearch = filterManager.clearSearchText(debouncedFilterState.search);
+
+
     useEffect(() => {
         subscribed.current = true;
+        filterManager.pushHistory();
         getData();
 
         return () => {subscribed.current = false}
@@ -141,7 +126,6 @@ const Table = () => {
     }
 
 
-
     return (
         <DefaultTable
             title="Categorias"
@@ -154,9 +138,10 @@ const Table = () => {
                 searchText: filterState.search as any,
                 page: filterState.pagination.page - 1,
                 rowsPerPage: filterState.pagination.per_page,
+                rowsPerPageOptions: rowsPerPageOptions,
                 count: totalRecords,
                 customToolbar: () => {
-                    return <FilterResetButton handleClick={() => dispatch(Creators.setReset())}/>
+                    return <FilterResetButton handleClick={() => filterManager.setReset()}/>
                 },
                 onSearchChange: (value) => filterManager.changeSearch(value),
                 onChangePage: (page) => filterManager.changePage(page),

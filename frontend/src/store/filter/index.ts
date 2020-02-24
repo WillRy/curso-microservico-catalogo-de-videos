@@ -35,7 +35,7 @@ export const INITIAL_STATE: State = {
     search: null,
     pagination: {
         page: 1,
-        per_page: 10
+        per_page: 15
     },
     order: {
         sort: null,
@@ -88,6 +88,10 @@ function setPerPage(state = INITIAL_STATE, action: SetPerPageAction): State {
 function setOrder(state = INITIAL_STATE, action: SetOrderAction): State {
     return {
         ...state,
+        pagination: {
+            ...state.pagination,
+            page: 1
+        },
         order: {
             sort: action.payload.sort,
             dir: action.payload.dir
