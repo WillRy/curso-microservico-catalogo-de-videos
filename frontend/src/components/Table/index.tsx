@@ -64,10 +64,14 @@ interface TableProps extends MUIDataTableProps {
     debouncedSearchTime?: number;
 }
 
+export interface MuiDataTableRefComponent {
+    changePage: (page:number) => void;
+    changeRowsPerPage: (rowsPerPage:number) => void;
+}
 
 
 
-const Table: React.FC<TableProps> = (props) => {
+const Table = React.forwardRef<MuiDataTableRefComponent, TableProps>((props, ref) => {
     function extractMuiDataTableColumns(columns:TableColumn[]):MUIDataTableColumn[] {
         setColumnsWidth(columns);
         return columns.map(column => omit(column, 'width') )
@@ -98,7 +102,10 @@ const Table: React.FC<TableProps> = (props) => {
     }
     
     function getOriginalMuiDataTableProps(){
-        return omit(newProps, 'loading');
+        return {
+            ...omit(newProps, 'loading'),
+            ref
+        };
     }
     
 
@@ -120,10 +127,10 @@ const Table: React.FC<TableProps> = (props) => {
 
     return (
         <MuiThemeProvider theme={theme}>
-            <MUIDataTable {...originalProps} />
+            <MUIDataTable {...originalProps}/>
         </MuiThemeProvider>
     );
-};
+});
 
 
 export default Table;

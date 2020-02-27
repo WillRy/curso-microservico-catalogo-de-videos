@@ -9,6 +9,7 @@ import DefaultTable, {TableColumn} from '../../components/Table';
 import {useSnackbar} from "notistack";
 import FilterResetButton from "../../components/Table/FilterResetButton";
 import useFilter from "../../hooks/useFilter";
+import {MuiDataTableRefComponent} from '../../components/Table';
 
 const columnsDefinitions: TableColumn[] = [
     {
@@ -64,6 +65,8 @@ const Table = () => {
     const subscribed = useRef(true); // {current: true}
     const [data, setData] = useState<Category[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
+
     const {
         filterManager,
         filterState,
@@ -75,6 +78,7 @@ const Table = () => {
         rowsPerPage: rowsPerPage,
         rowsPerPageOptions: rowsPerPageOptions,
         debounceTime: debounceTime,
+        tableRef
     });
 
 
@@ -133,6 +137,7 @@ const Table = () => {
             data={data}
             loading={loading}
             debouncedSearchTime={debouncedSearchTime}
+            ref={tableRef}
             options={{
                 serverSide: true,
                 searchText: filterState.search as any,
@@ -141,7 +146,7 @@ const Table = () => {
                 rowsPerPageOptions: rowsPerPageOptions,
                 count: totalRecords,
                 customToolbar: () => {
-                    return <FilterResetButton handleClick={() => filterManager.setReset()}/>
+                    return <FilterResetButton handleClick={() => filterManager.resetFilter()}/>
                 },
                 onSearchChange: (value) => filterManager.changeSearch(value),
                 onChangePage: (page) => filterManager.changePage(page),
