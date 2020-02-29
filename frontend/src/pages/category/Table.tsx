@@ -5,11 +5,10 @@ import parseISO from 'date-fns/parseISO';
 import categoryHttp from "../../util/http/category-http";
 import {Category, listResponse} from "../../util/models";
 import {BadgeNo, BadgeYes} from "../../components/Badge";
-import DefaultTable, {TableColumn} from '../../components/Table';
+import DefaultTable, {MuiDataTableRefComponent, TableColumn} from '../../components/Table';
 import {useSnackbar} from "notistack";
 import FilterResetButton from "../../components/Table/FilterResetButton";
 import useFilter from "../../hooks/useFilter";
-import {MuiDataTableRefComponent} from '../../components/Table';
 
 const columnsDefinitions: TableColumn[] = [
     {
@@ -29,7 +28,7 @@ const columnsDefinitions: TableColumn[] = [
         name: "is_active",
         label: "Ativo?",
         options: {
-            customBodyRender(value,tableMeta, updateValue){
+            customBodyRender(value, tableMeta, updateValue) {
                 return value ? <BadgeYes/> : <BadgeNo/>
             }
         },
@@ -39,7 +38,7 @@ const columnsDefinitions: TableColumn[] = [
         name: "created_at",
         label: "Criado em",
         options: {
-            customBodyRender(value,tableMeta, updateValue){
+            customBodyRender(value, tableMeta, updateValue) {
                 return <span>{format(parseISO(value), 'dd/MM/yyyy')}</span>;
             }
 
@@ -90,7 +89,9 @@ const Table = () => {
         filterManager.pushHistory();
         getData();
 
-        return () => {subscribed.current = false}
+        return () => {
+            subscribed.current = false
+        }
     }, [
         filteredSearch,
         debouncedFilterState.pagination.page,
@@ -98,29 +99,29 @@ const Table = () => {
         debouncedFilterState.order
     ]);
 
-    async function getData(){
+    async function getData() {
         setLoading(true);
 
         try {
             const {data} = await categoryHttp.list<listResponse<Category>>(
                 {
                     queryParams: {
-                        search: filterManager.clearSearchText(filterState.search),
-                        page: filterState.pagination.page,
-                        per_page: filterState.pagination.per_page,
-                        sort: filterState.order.sort,
-                        dir: filterState.order.dir
+                        search: filterManager.clearSearchText(debouncedFilterState.search),
+                        page: debouncedFilterState.pagination.page,
+                        per_page: debouncedFilterState.pagination.per_page,
+                        sort: debouncedFilterState.order.sort,
+                        dir: debouncedFilterState.order.dir
                     }
                 }
             );
 
-            if(subscribed.current){
+            if (subscribed.current) {
                 setData(data.data);
                 setTotalRecords(data.meta.total);
             }
-        }catch (e) {
+        } catch (e) {
             console.log(e);
-            if(categoryHttp.isCancelledRequest(e)){
+            if (categoryHttp.isCancelledRequest(e)) {
                 return;
             }
             enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
