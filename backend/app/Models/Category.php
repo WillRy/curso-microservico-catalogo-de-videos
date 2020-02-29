@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use App\ModelFilters\CategoryFilter;
 use App\Models\Traits\Uuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use EloquentFilter\Filterable;
 
 class Category extends Model
 {
 
-    use SoftDeletes, Uuid;
+    use SoftDeletes, Uuid, Filterable;
 
     public $incrementing = false;
 
@@ -33,5 +34,9 @@ class Category extends Model
         return $this->belongsToMany(Genre::class);
     }
 
+    public function modelFilter()
+    {
+        return $this->provideFilter(CategoryFilter::class);
+    }
 
 }
