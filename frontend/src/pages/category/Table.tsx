@@ -16,18 +16,26 @@ const columnsDefinitions: TableColumn[] = [
         label: "ID",
         width: '30%',
         options: {
-            sort: false
+            sort: false,
+            filter: false
         }
     },
     {
         name: "name",
         label: "Nome",
-        width: '43%'
+        width: '43%',
+        options: {
+            filter: false
+        }
     },
     {
         name: "is_active",
         label: "Ativo?",
         options: {
+            filterOptions: {
+                names: ['Sim', 'Nāo']
+            },
+            filter: false,
             customBodyRender(value, tableMeta, updateValue) {
                 return value ? <BadgeYes/> : <BadgeNo/>
             }
@@ -40,7 +48,8 @@ const columnsDefinitions: TableColumn[] = [
         options: {
             customBodyRender(value, tableMeta, updateValue) {
                 return <span>{format(parseISO(value), 'dd/MM/yyyy')}</span>;
-            }
+            },
+            filter: false
 
         },
         width: '10%'
@@ -48,7 +57,11 @@ const columnsDefinitions: TableColumn[] = [
     {
         name: 'actions',
         label: "Ações",
-        width: '13%'
+        width: '13%',
+        options: {
+            filter: false,
+            sort: false
+        }
     }
 ];
 
@@ -140,12 +153,14 @@ const Table = () => {
             debouncedSearchTime={debouncedSearchTime}
             ref={tableRef}
             options={{
+                // serverSideFilterList: [[],['teste'],['teste'],[],[]],
                 serverSide: true,
                 searchText: filterState.search as any,
                 page: filterState.pagination.page - 1,
                 rowsPerPage: filterState.pagination.per_page,
                 rowsPerPageOptions: rowsPerPageOptions,
                 count: totalRecords,
+                filter: false,
                 customToolbar: () => {
                     return <FilterResetButton handleClick={() => filterManager.resetFilter()}/>
                 },
