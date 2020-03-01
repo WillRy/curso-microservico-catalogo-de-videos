@@ -1,6 +1,6 @@
 import {Dispatch, Reducer, useReducer, useState, useEffect, MutableRefObject} from "react";
 import reducer, {Creators} from "../store/filter";
-import {Actions as FilterActions, State as FilterState} from "../store/filter/types";
+import {Actions as FilterActions, State, State as FilterState} from "../store/filter/types";
 import {MUIDataTableColumn} from "mui-datatables";
 import {useDebounce} from "use-debounce";
 import {useHistory} from "react-router-dom";
@@ -16,6 +16,13 @@ interface FilterManagerOptions {
     debounceTime: number;
     history: History;
     tableRef: MutableRefObject<MuiDataTableRefComponent>;
+    extraFilter?: ExtraFilter
+}
+
+interface ExtraFilter {
+    getStateFromURL: (queryParams: URLSearchParams) => any;
+    formatSearchParams: (debouncedState: State) => any;
+    createValidationSchema: () => any;
 }
 
 interface UseFilterOptions extends Omit<FilterManagerOptions, 'history'> {
@@ -66,14 +73,16 @@ export class FilterManager {
     history: History;
     debouncedState: FilterState = null as any;
     tableRef: MutableRefObject<MuiDataTableRefComponent>;
+    extraFilter?: ExtraFilter;
 
     constructor(options: FilterManagerOptions) {
-        const {columns, rowsPerPage, rowsPerPageOptions, history, tableRef} = options;
+        const {columns, rowsPerPage, rowsPerPageOptions, history, tableRef, extraFilter} = options;
         this.columns = columns;
         this.rowsPerPage = rowsPerPage;
         this.rowsPerPageOptions = rowsPerPageOptions;
         this.history = history;
         this.tableRef = tableRef;
+        this.extraFilter = extraFilter;
         this.createValidationSchema();
     }
 
@@ -81,6 +90,16 @@ export class FilterManager {
         this.tableRef.current.changeRowsPerPage(this.rowsPerPage);
         this.tableRef.current.changePage(0);
     }
+
+    changeExtraFilter(value) {
+        this.dispatch(Creators.updateExtraFilter(value));
+    }
+
+    clearExtraFilter() {
+        this.dispatch(Creators.clearExtraFilter({}));
+        this.resetTablePagination();
+    }
+
 
     changeSearch(value: string) {
         this.dispatch(Creators.setSearch({search: value}));
@@ -185,6 +204,9 @@ export class FilterManager {
                     dir: this.debouncedState.order.dir,
                 }
 
+            ),
+            ...(
+                this.extraFilter && this.extraFilter.formatSearchParams(this.debouncedState)
             )
         }
     }
@@ -202,7 +224,12 @@ export class FilterManager {
             order: {
                 sort: queryParams.get('sort'),
                 dir: queryParams.get('dir'),
-            }
+            },
+            ...(
+                this.extraFilter && {
+                    extraFilter: this.extraFilter.getStateFromURL(queryParams)
+                }
+            )
         })
 
     }
@@ -235,7 +262,12 @@ export class FilterManager {
                         return (!value || !['asc', 'desc'].includes(value.toLowerCase()) ? undefined : value);
                     })
                     .default(null),
-            })
+            }),
+            ...(
+                this.extraFilter && {
+                    extraFilter: this.extraFilter.createValidationSchema()
+                }
+            )
         });
     }
 

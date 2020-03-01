@@ -3,16 +3,15 @@ import {useEffect, useRef, useState} from 'react';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import castMemberHttp from "../../util/http/cast-member-http";
-import {CastMember, listResponse} from "../../util/models";
+import {CastMember, listResponse, CastMemberTypeMap} from "../../util/models";
 import {useSnackbar} from "notistack";
 import DefaultTable, {MuiDataTableRefComponent, TableColumn} from "../../components/Table";
 import useFilter from "../../hooks/useFilter";
 import FilterResetButton from "../../components/Table/FilterResetButton";
+import * as yup from '../../util/vendor/yup';
+import {invert} from 'lodash';
 
-const CastMemberTypeMap: { [key: string]: any } = {
-    1: 'Diretor',
-    2: 'Ator'
-};
+const castMemberNames = Object.values(CastMemberTypeMap);
 
 const columnsDefinitions: TableColumn[] = [
     {
@@ -20,17 +19,24 @@ const columnsDefinitions: TableColumn[] = [
         label: "ID",
         width: '30%',
         options: {
-            sort: false
+            sort: false,
+            filter: false
         }
     },
     {
         name: "name",
-        label: "Nome"
+        label: "Nome",
+        options: {
+            filter: false
+        }
     },
     {
         name: "type",
         label: "Tipo",
         options: {
+            filterOptions: {
+                names: castMemberNames
+            },
             customBodyRender(value: number, tableMeta, updateValue) {
                 return CastMemberTypeMap[value];
             }
@@ -40,15 +46,13 @@ const columnsDefinitions: TableColumn[] = [
         name: "created_at",
         label: "Criado em",
         options: {
+            filter: false,
             customBodyRender(value, tableMeta, updateValue) {
-
                 return <span> {
                     format(parseISO(value), 'dd/MM/yyyy')
                 } </span>
-
             }
         }
-
     }
 
 
@@ -72,14 +76,50 @@ const Table = () => {
         filterState,
         totalRecords,
         setTotalRecords,
-        debouncedFilterState
+        debouncedFilterState,
+        columns
     } = useFilter({
         columns: columnsDefinitions,
         rowsPerPage: rowsPerPage,
         rowsPerPageOptions: rowsPerPageOptions,
         debounceTime: debounceTime,
-        tableRef
+        tableRef,
+        extraFilter: {
+            createValidationSchema: () => {
+                return yup.object().shape({
+                    type: yup
+                        .string()
+                        .nullable()
+                        .transform(value => {
+                            return !value || !castMemberNames.includes(value) ? undefined : value
+                        })
+                        .default(null)
+                })
+            },
+            formatSearchParams: () => {
+                return debouncedFilterState.extraFilter ? {
+                    ...(debouncedFilterState.extraFilter.type &&
+                        {type: debouncedFilterState.extraFilter.type}
+                    )
+                } : undefined
+            },
+            getStateFromURL: (queryParams) => {
+                return {
+                    type: queryParams.get('type')
+                }
+            }
+        }
     });
+
+    const indexColumnType = columns.findIndex(c => c.name === 'type');
+    const columnType = columns[indexColumnType];
+    const typeFilterValue = filterState.extraFilter && filterState.extraFilter.type as never;
+    (columnType.options as any).filterList = typeFilterValue ? [typeFilterValue] : [];
+
+    const serverSideFilterList = columns.map(column => []);
+    if (typeFilterValue) {
+        serverSideFilterList[indexColumnType] = [typeFilterValue];
+    }
 
 
     const filteredSearch = filterManager.clearSearchText(debouncedFilterState.search);
@@ -97,7 +137,8 @@ const Table = () => {
         filteredSearch,
         debouncedFilterState.pagination.page,
         debouncedFilterState.pagination.per_page,
-        debouncedFilterState.order
+        debouncedFilterState.order,
+        JSON.stringify(debouncedFilterState.extraFilter)
     ]);
 
     async function getData() {
@@ -110,7 +151,13 @@ const Table = () => {
                     page: debouncedFilterState.pagination.page,
                     per_page: debouncedFilterState.pagination.per_page,
                     sort: debouncedFilterState.order.sort,
-                    dir: debouncedFilterState.order.dir
+                    dir: debouncedFilterState.order.dir,
+                    ...(
+                        debouncedFilterState.extraFilter &&
+                        debouncedFilterState.extraFilter.type &&
+                        //inverte para pegar o mapa pelo valor e nao pela chave
+                        {type: invert(CastMemberTypeMap)[debouncedFilterState.extraFilter.type]}
+                    )
                 }
             });
 
@@ -142,6 +189,7 @@ const Table = () => {
             debouncedSearchTime={debouncedSearchTime}
             ref={tableRef}
             options={{
+                serverSideFilterList,
                 serverSide: true,
                 searchText: filterState.search as any,
                 page: filterState.pagination.page - 1,
@@ -150,6 +198,18 @@ const Table = () => {
                 count: totalRecords,
                 customToolbar: () => {
                     return <FilterResetButton handleClick={() => filterManager.resetFilter()}/>
+                },
+                onFilterChange: (column, filterList, type) => {
+
+                    const columnIndex = columns.findIndex(c => c.name === column);
+
+                    if (columnIndex && filterList[columnIndex]) {
+                        filterManager.changeExtraFilter({
+                            [column]: filterList[columnIndex].length ? filterList[columnIndex][0] : null
+                        })
+                    } else {
+                        filterManager.clearExtraFilter();
+                    }
                 },
                 onSearchChange: (value) => filterManager.changeSearch(value),
                 onChangePage: (page) => filterManager.changePage(page),
