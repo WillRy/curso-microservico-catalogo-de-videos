@@ -1,4 +1,4 @@
-export interface listResponse<T = any>{
+export interface listResponse<T = any> {
     data: T[];
     links: {
         first: string;
@@ -10,31 +10,31 @@ export interface listResponse<T = any>{
         current_page: number;
         from: number;
         last_page: number;
-        path:string;
+        path: string;
         per_page: number;
         to: number;
         total: number;
     }
 }
 
-export interface simpleResponse<T = any>{
+export interface simpleResponse<T = any> {
     data: T
 }
 
-interface Timestampable{
+interface Timestampable {
     readonly created_at: string;
     readonly updated_at: string;
     readonly deleted_at: string | null;
 }
 
-export interface Category extends Timestampable{
+export interface Category extends Timestampable {
     readonly id: string
     name: string;
     description: string
     is_active: boolean
 }
 
-export interface CastMember extends Timestampable{
+export interface CastMember extends Timestampable {
     readonly id: string;
     name: string;
     type: number
@@ -47,7 +47,7 @@ export const CastMemberTypeMap: { [key: string]: any } = {
 };
 
 
-export interface Genre extends Timestampable{
+export interface Genre extends Timestampable {
     readonly id: string;
     name: string;
     is_active: boolean;
@@ -63,20 +63,18 @@ export const VideoFileFieldsMap = {
 };
 
 interface GenreVideo extends Omit<Genre, 'categories'> {
-
 }
 
 export interface Video extends Timestampable {
-
     readonly id: string;
-    title:string;
-    description:string;
+    title: string;
+    description: string;
     year_launched: string;
-    opened:boolean;
+    opened: boolean;
     rating: string;
     duration: number;
-    genres:GenreVideo[];
-    categories:Category[];
+    genres: GenreVideo[];
+    categories: Category[];
     cast_members: CastMember[];
     thumb_file_url: string;
     banner_file_url: string;

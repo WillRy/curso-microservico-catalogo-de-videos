@@ -7,7 +7,7 @@ import {Page} from "../../components/Page";
 const PageForm = () => {
     const {id} = useParams();
     return (
-        <Page title={!id ? "Cadastro de vídeos" : "Edição de vídeo"}>
+        <Page title={!id ? "Criar vídeo" : "Editar vídeo"}>
             <Form/>
         </Page>
     );
