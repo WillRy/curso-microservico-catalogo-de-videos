@@ -3,7 +3,9 @@ import {LocaleObject, setLocale} from 'yup'
 const ptBr: LocaleObject = {
     mixed: {
         // eslint-disable-next-line no-template-curly-in-string
-        required: '${path} é requerido'
+        required: '${path} é requerido',
+        // eslint-disable-next-line no-template-curly-in-string
+        notType: '${path} é invalido',
     },
     string: {
         // eslint-disable-next-line no-template-curly-in-string

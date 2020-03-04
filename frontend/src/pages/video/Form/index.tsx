@@ -3,13 +3,35 @@ import {useEffect, useState} from 'react';
 import * as yup from '../../../util/vendor/yup';
 import {useForm} from "react-hook-form";
 import {DefaultForm} from "../../../components/DefaultForm";
-import {Checkbox, FormControlLabel, Grid, TextField, Typography, useMediaQuery, useTheme} from "@material-ui/core";
+import {
+    Checkbox,
+    FormControlLabel,
+    Grid,
+    TextField, Theme,
+    Typography,
+    useMediaQuery,
+    useTheme
+} from "@material-ui/core";
 import {useHistory, useParams} from 'react-router-dom';
-import {Video} from "../../../util/models";
+import {Video, VideoFileFieldsMap} from "../../../util/models";
 import {useSnackbar} from "notistack";
 import videoHttp from "../../../util/http/video-http";
 import SubmitActions from "../../../components/SubmitActions";
 import {RatingField} from "./RatingField";
+import {UploadField} from "./UploadField";
+import Card from "@material-ui/core/Card";
+import CardContent from "@material-ui/core/CardContent";
+import makeStyles from "@material-ui/core/styles/makeStyles";
+
+
+const useStyles = makeStyles((theme: Theme) => ({
+    cardUpload: {
+        borderRadius: "4px",
+        backgroundColor: "#f5f5f5",
+        margin: theme.spacing(2, 0)
+    }
+
+}));
 
 const validationSchema = yup.object().shape({
     title: yup.string()
@@ -32,6 +54,7 @@ const validationSchema = yup.object().shape({
         .required()
 });
 
+const fileFields = Object.keys(VideoFileFieldsMap);
 const Index = () => {
 
     const {
@@ -60,7 +83,7 @@ const Index = () => {
     const isGreaterMd = useMediaQuery(theme.breakpoints.up('md'));
 
     useEffect(() => {
-        ['rating', 'opened'].forEach(name => register({name: name}))
+        ['rating', 'opened', ...fileFields].forEach(name => register({name: name}))
     }, [register]);
 
     useEffect(() => {
@@ -117,6 +140,7 @@ const Index = () => {
     };
 
 
+    const classes = useStyles();
     return (
 
         <DefaultForm GridItemProps={{xs: 12}} onSubmit={handleSubmit(onSubmit)}>
@@ -199,14 +223,46 @@ const Index = () => {
                 </Grid>
                 <Grid item xs={12} md={6}>
                     <RatingField
-                        value={watch('rating') + "" }
+                        value={watch('rating') + ""}
                         setValue={(value => setValue('rating', value, true))}
                         error={errors.rating}
                         disabled={loading}
                         FormControlProps={{margin: isGreaterMd ? 'none' : 'normal'}}
                     />
-                    <br/>
-                    Uploads
+                    <Card className={classes.cardUpload}>
+                        <CardContent>
+                            <Typography color={"primary"} variant={"h6"}>Imagens</Typography>
+
+                            <UploadField
+                                label={"Thumb"}
+                                accept={"image/*"}
+                                setValue={(value => setValue('thumb_file', value))}
+                                error={null}/>
+
+                            <UploadField
+                                label={"Banner"}
+                                accept={"image/*"}
+                                setValue={(value => setValue('banner_file', value))}
+                                error={null}/>
+                        </CardContent>
+                    </Card>
+                    <Card className={classes.cardUpload}>
+                        <CardContent>
+                            <Typography color={"primary"} variant={"h6"}>Vídeos</Typography>
+                            <UploadField
+                                label={"Trailer"}
+                                accept={"video/mp4"}
+                                setValue={(value => setValue('trailer_file', value))}
+                                error={null}/>
+
+                            <UploadField
+                                label={"Vídeo"}
+                                accept={"video/mp4"}
+                                setValue={(value => setValue('video_file', value))}
+                                error={null}/>
+                        </CardContent>
+                    </Card>
+
                     <br/>
                     <FormControlLabel
                         control={

@@ -1,17 +1,16 @@
 import * as React from 'react';
 import {Checkbox, TextField} from "@material-ui/core";
-import { useForm } from 'react-hook-form';
+import {useForm} from 'react-hook-form';
 import categoryHttp from "../../util/http/category-http";
 import * as yup from '../../util/vendor/yup';
 import {useEffect, useState} from "react";
 import {useParams} from 'react-router';
 import {Category, simpleResponse} from "../../util/models";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import { useHistory } from 'react-router-dom';
+import {useHistory} from 'react-router-dom';
 import {useSnackbar} from "notistack";
 import SubmitActions from "../../components/SubmitActions";
 import {DefaultForm} from "../../components/DefaultForm";
-
 
 
 const validationSchema = yup.object().shape({
@@ -39,7 +38,7 @@ export const Form = () => {
     const {enqueueSnackbar} = useSnackbar();
     const history = useHistory();
     const {id} = useParams();
-    const [category, setCategory] = useState<Category| null>(null);
+    const [category, setCategory] = useState<Category | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
 
@@ -48,20 +47,19 @@ export const Form = () => {
     }, [register]);
 
 
-
     useEffect(() => {
 
-        if(!id){
+        if (!id) {
             return;
         }
 
-        (async function getCategory(){
+        (async function getCategory() {
             setLoading(true);
             try {
                 const {data} = await categoryHttp.get(id);
                 setCategory(data.data);
                 reset(data.data);
-            }catch (e) {
+            } catch (e) {
                 console.log(e);
                 enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
             } finally {
@@ -96,9 +94,11 @@ export const Form = () => {
         }
     }
 
-    function validateSubmit(){
+    function validateSubmit() {
         triggerValidation()
-            .then(isValid => {isValid && onSubmit(getValues(), null)});
+            .then(isValid => {
+                isValid && onSubmit(getValues(), null)
+            });
     }
 
     return (
@@ -111,7 +111,7 @@ export const Form = () => {
                 variant={"outlined"}
                 inputRef={register}
                 disabled={loading}
-                error = {(errors as any).name !== undefined}
+                error={(errors as any).name !== undefined}
                 helperText={(errors as any).name && (errors as any).name.message}
                 InputLabelProps={{shrink: true}}
             />
