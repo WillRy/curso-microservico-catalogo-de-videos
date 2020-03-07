@@ -22,6 +22,8 @@ import {UploadField} from "./UploadField";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import makeStyles from "@material-ui/core/styles/makeStyles";
+import {AsyncAutoComplete} from "../../../components/AsyncAutoComplete";
+import genreHttp from "../../../util/http/genres-http";
 
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -139,6 +141,10 @@ const Index = () => {
         });
     };
 
+    const fetchOptions = (searchText) => genreHttp
+        .list({queryParams: {search: searchText, all: ""}})
+        .then(({data}) => data.data);
+
 
     const classes = useStyles();
     return (
@@ -217,7 +223,18 @@ const Index = () => {
 
                     Elenco
                     <br/>
-                    Gêneros e categorias
+
+                    <AsyncAutoComplete
+                        fetchOptions={fetchOptions}
+                        TextFieldProps={{
+                            label: "Gêneros"
+                        }}
+                        AutocompleteProps={{
+                            freeSolo: false,
+                            getOptionLabel: option => option.name,
+                            getOptionSelected: option => option.id
+                        }}
+                    />
                     <br/>
 
                 </Grid>
