@@ -22,8 +22,9 @@ import {UploadField} from "./UploadField";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import makeStyles from "@material-ui/core/styles/makeStyles";
-import {AsyncAutoComplete} from "../../../components/AsyncAutoComplete";
-import genreHttp from "../../../util/http/genres-http";
+import GenreField from "./GenreField";
+import CategoryField from "./CategoryField";
+import FormHelperText from "@material-ui/core/FormHelperText";
 
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -32,7 +33,6 @@ const useStyles = makeStyles((theme: Theme) => ({
         backgroundColor: "#f5f5f5",
         margin: theme.spacing(2, 0)
     }
-
 }));
 
 const validationSchema = yup.object().shape({
@@ -53,6 +53,12 @@ const validationSchema = yup.object().shape({
         .min(1),
     rating: yup.string()
         .label("Classificação")
+        .required(),
+    genres: yup.array()
+        .label("Gêneros")
+        .required(),
+    categories: yup.array()
+        .label("Categorias")
         .required()
 });
 
@@ -72,7 +78,9 @@ const Index = () => {
         validationSchema,
         defaultValues: {
             rating: '',
-            opened: false
+            opened: false,
+            genres: [],
+            categories: []
         }
     });
 
@@ -85,7 +93,13 @@ const Index = () => {
     const isGreaterMd = useMediaQuery(theme.breakpoints.up('md'));
 
     useEffect(() => {
-        ['rating', 'opened', ...fileFields].forEach(name => register({name: name}))
+        [
+            'rating',
+            'opened',
+            'genres',
+            'categories',
+            ...fileFields
+        ].forEach(name => register({name: name}))
     }, [register]);
 
     useEffect(() => {
@@ -140,10 +154,6 @@ const Index = () => {
             isValid && onSubmit(getValues(), null)
         });
     };
-
-    const fetchOptions = (searchText) => genreHttp
-        .list({queryParams: {search: searchText, all: ""}})
-        .then(({data}) => data.data);
 
 
     const classes = useStyles();
@@ -223,18 +233,40 @@ const Index = () => {
 
                     Elenco
                     <br/>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} md={6}>
+                            <GenreField
+                                error={errors.genres}
+                                genres={watch('genres') as any[]}
+                                categories={watch('categories') as any[]}
+                                setGenres={(value) => setValue('genres', value, true)}
+                                setCategories={(value) => setValue('categories', value, true)}
+                                disabled={loading}
+                             />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <CategoryField
+                                error={errors.categories}
+                                categories={watch('categories') as any[]}
+                                setCategories={(vale) => setValue('categories', vale, true)}
+                                genres={watch('genres') as any[]}
+                                disabled={loading}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <FormHelperText>
+                                Escolha os gêneros do vídeo
+                            </FormHelperText>
+                            <FormHelperText>
+                                Escolha pelo menos uma categoria de cada gênero
+                            </FormHelperText>
+                            <FormHelperText>
+                                As categorias devem estar relacionadas com no mínimo um gênero
+                            </FormHelperText>
+                        </Grid>
+                    </Grid>
 
-                    <AsyncAutoComplete
-                        fetchOptions={fetchOptions}
-                        TextFieldProps={{
-                            label: "Gêneros"
-                        }}
-                        AutocompleteProps={{
-                            freeSolo: false,
-                            getOptionLabel: option => option.name,
-                            getOptionSelected: option => option.id
-                        }}
-                    />
+
                     <br/>
 
                 </Grid>
@@ -254,13 +286,15 @@ const Index = () => {
                                 label={"Thumb"}
                                 accept={"image/*"}
                                 setValue={(value => setValue('thumb_file', value))}
-                                error={null}/>
+                                error={null}
+                                disabled={loading}/>
 
                             <UploadField
                                 label={"Banner"}
                                 accept={"image/*"}
                                 setValue={(value => setValue('banner_file', value))}
-                                error={null}/>
+                                error={null}
+                                disabled={loading}/>
                         </CardContent>
                     </Card>
                     <Card className={classes.cardUpload}>
@@ -270,13 +304,15 @@ const Index = () => {
                                 label={"Trailer"}
                                 accept={"video/mp4"}
                                 setValue={(value => setValue('trailer_file', value))}
-                                error={null}/>
+                                error={null}
+                                disabled={loading}/>
 
                             <UploadField
                                 label={"Vídeo"}
                                 accept={"video/mp4"}
                                 setValue={(value => setValue('video_file', value))}
-                                error={null}/>
+                                error={null}
+                                disabled={loading}/>
                         </CardContent>
                     </Card>
 

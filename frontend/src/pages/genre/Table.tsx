@@ -11,6 +11,9 @@ import DefaultTable, {MuiDataTableRefComponent, TableColumn} from "../../compone
 import FilterResetButton from "../../components/Table/FilterResetButton";
 import * as yup from "../../util/vendor/yup";
 import categoryHttp from "../../util/http/category-http";
+import IconButton from "@material-ui/core/IconButton/IconButton";
+import {Link} from "react-router-dom";
+import EditIcon from "@material-ui/icons/Edit";
 
 const columnsDefinitions: TableColumn[] = [
     {
@@ -66,10 +69,27 @@ const columnsDefinitions: TableColumn[] = [
                 return <span> {
                     format(parseISO(value), 'dd/MM/yyyy')
                 } </span>
-
             }
         }
-
+    },
+    {
+        name: "actions",
+        label: "Ações",
+        width: '13%',
+        options: {
+            sort: false,
+            filter: false,
+            customBodyRender:(value, tableMeta, updateValue) => {
+                return (
+                    <IconButton
+                        color={"secondary"}
+                        component={Link}
+                        to={`/genre/${tableMeta.rowData[0]}/edit`}>
+                        <EditIcon/>
+                    </IconButton>
+                )
+            }
+        }
     }
 
 ];

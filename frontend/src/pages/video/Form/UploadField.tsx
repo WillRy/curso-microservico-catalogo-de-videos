@@ -32,29 +32,32 @@ export const UploadField: React.FC<UploadFieldProps> = (props) => {
             <InputFile
                 ref={fileRef}
                 TextFieldProps={{
-                    label: label,
-                    InputLabelProps: {shrink: true},
-                    style: {backgroundColor: '#ffffff'}
+                    label:label,
+                    InputLabelProps: {shrink:true},
+                    style: {backgroundColor: '#ffffff'},
+                    disabled: disabled === true
                 }}
                 InputFileProps={{
                     accept,
                     onChange(event) {
                         const files = event.target.files as any;
                         files.length && setValue(files[0])
-                    }
+                    },
+                    disabled: disabled === true
                 }}
                 ButtonFile={
                     <Button
                         endIcon={<CloudUploadIcon/>}
                         variant={"contained"}
                         color={"primary"}
-                        onClick={() => {
-                            fileRef.current.openWindow();
-                        }}
+                        onClick={ () => fileRef.current.openWindow()}
+                        disabled={disabled === true}
                     >
                         Adicionar
                     </Button>
-                }/>
+                }
+            />
+
         </FormControl>
     );
 };

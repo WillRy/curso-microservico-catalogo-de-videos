@@ -9,6 +9,9 @@ import DefaultTable, {MuiDataTableRefComponent, TableColumn} from '../../compone
 import {useSnackbar} from "notistack";
 import FilterResetButton from "../../components/Table/FilterResetButton";
 import useFilter from "../../hooks/useFilter";
+import IconButton from '@material-ui/core/IconButton/IconButton';
+import { Link } from 'react-router-dom';
+import EditIcon from '@material-ui/icons/Edit';
 
 const columnsDefinitions: TableColumn[] = [
     {
@@ -55,12 +58,23 @@ const columnsDefinitions: TableColumn[] = [
         width: '10%'
     },
     {
-        name: 'actions',
+        name: "actions",
         label: "Ações",
         width: '13%',
         options: {
+            sort: false,
             filter: false,
-            sort: false
+            customBodyRender:(value, tableMeta, updateValue) => {
+                return (
+                    <IconButton
+                        color={"secondary"}
+                        component={Link}
+                        to={`/categories/${tableMeta.rowData[0]}/edit`}>
+
+                        <EditIcon/>
+                    </IconButton>
+                )
+            }
         }
     }
 ];

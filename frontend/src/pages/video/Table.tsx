@@ -30,15 +30,17 @@ const columnsDefinitions: TableColumn[] = [
         }
     },
     {
-        name: "is_active",
-        label: "Ativo?",
+        name: "genres",
+        label: "Gẽneros",
+        width: '5%',
         options: {
             filter: false,
             customBodyRender(value, tableMeta, updateValue) {
-                return value ? <BadgeYes/> : <BadgeNo/>;
-            }
-        },
-        width: '4%'
+                return <span> {
+                    value.map((value: { name: any; }) => value.name).join(', ')
+                } </span>
+            },
+        }
     },
     {
         name: "categories",
@@ -63,14 +65,11 @@ const columnsDefinitions: TableColumn[] = [
         options: {
             filter: false,
             customBodyRender(value, tableMeta, updateValue) {
-
                 return <span> {
                     format(parseISO(value), 'dd/MM/yyyy')
                 } </span>
-
             }
         }
-
     },
     {
         name: "actions",
