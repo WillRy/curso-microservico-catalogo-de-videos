@@ -7,9 +7,11 @@ import useFilter from "../../hooks/useFilter";
 import videoHttp from "../../util/http/video-http";
 import categoryHttp from "../../util/http/category-http";
 import FilterResetButton from "../../components/Table/FilterResetButton";
-import {BadgeNo, BadgeYes} from "../../components/Badge";
 import {format, parseISO} from "date-fns";
 import * as yup from "../../util/vendor/yup";
+import IconButton from "@material-ui/core/IconButton/IconButton";
+import {Link} from "react-router-dom";
+import EditIcon from "@material-ui/icons/Edit";
 
 const columnsDefinitions: TableColumn[] = [
     {
@@ -24,7 +26,7 @@ const columnsDefinitions: TableColumn[] = [
     {
         name: "title",
         label: "Titulo",
-        width: '23%',
+        width: '20%',
         options: {
             filter: false,
         }
@@ -32,7 +34,7 @@ const columnsDefinitions: TableColumn[] = [
     {
         name: "genres",
         label: "Gẽneros",
-        width: '5%',
+        width: '13%',
         options: {
             filter: false,
             customBodyRender(value, tableMeta, updateValue) {
@@ -45,7 +47,7 @@ const columnsDefinitions: TableColumn[] = [
     {
         name: "categories",
         label: "Categorias",
-        width: '5%',
+        width: '12%',
         options: {
             filterType: 'multiselect',
             filterOptions: {
@@ -78,6 +80,16 @@ const columnsDefinitions: TableColumn[] = [
         options: {
             sort: false,
             filter: false,
+            customBodyRender:(value, tableMeta, updateValue) => {
+                return (
+                    <IconButton
+                        color={"secondary"}
+                        component={Link}
+                        to={`/videos/${tableMeta.rowData[0]}/edit`}>
+                        <EditIcon/>
+                    </IconButton>
+                )
+            }
         }
     }
 ];
