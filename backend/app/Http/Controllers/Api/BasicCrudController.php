@@ -84,7 +84,7 @@ abstract class BasicCrudController extends Controller
 
         /** Pega a key name para saber qual o meio de busca. Seja id ou slug */
         $keyName = (new $model)->getRouteKeyName();
-        return $this->model()::where($keyName, $id)->firstOrFail();
+        return $this->queryBuilder()->where($keyName, $id)->firstOrFail();
     }
 
     protected function queryBuilder(): Builder {

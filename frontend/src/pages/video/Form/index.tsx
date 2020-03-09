@@ -45,8 +45,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     }
 }));
 
-
-
 const validationSchema = yup.object().shape({
     title: yup.string()
         .label("Título")
@@ -193,7 +191,7 @@ const Index = () => {
         castMemberRef.current.clear();
         categoriesRef.current.clear();
         genresRef.current.clear();
-        reset(data);//opcional
+        // reset(data);//opcional
     }
 
     function validateSubmit() {
@@ -207,7 +205,7 @@ const Index = () => {
     const classes = useStyles();
     return (
 
-        <DefaultForm GridItemProps={{xs: 12}} onSubmit={handleSubmit(onSubmit)} >
+        <DefaultForm GridItemProps={{xs: 12}} onSubmit={handleSubmit(onSubmit)}>
             <Grid container spacing={5}>
                 <Grid item xs={12} md={6}>
                     <TextField

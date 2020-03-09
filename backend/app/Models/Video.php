@@ -22,6 +22,8 @@ class Video extends Model
 
     public $incrementing = false;
 
+    protected $hidden = ['video_file', 'thumb_file', 'trailer_file', 'banner_file'];
+
     public static $fileFields = [
         'video_file',
         'thumb_file',
