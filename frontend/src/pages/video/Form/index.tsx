@@ -28,6 +28,7 @@ import FormHelperText from "@material-ui/core/FormHelperText";
 import {CastMemberField, CastMemberFieldComponent} from "./CastMemberField";
 import {omit, zipObject} from 'lodash';
 import {InputFileComponent} from "../../../components/InputFile";
+import useSnackbarFormError from "../../../hooks/useSnackbarFormError";
 
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -89,7 +90,17 @@ const validationSchema = yup.object().shape({
 const fileFields = Object.keys(VideoFileFieldsMap);
 const Index = () => {
 
-    const {register, handleSubmit, getValues, setValue , watch, reset, errors, triggerValidation} = useForm({
+    const {
+        register,
+        handleSubmit,
+        getValues,
+        setValue,
+        watch,
+        reset,
+        errors,
+        triggerValidation,
+        formState
+    } = useForm({
         validationSchema,
         defaultValues: {
             rating: '',
@@ -99,6 +110,8 @@ const Index = () => {
             cast_members: []
         }
     });
+
+    useSnackbarFormError(formState.submitCount, errors);
 
     const {id} = useParams();
     const {enqueueSnackbar} = useSnackbar();

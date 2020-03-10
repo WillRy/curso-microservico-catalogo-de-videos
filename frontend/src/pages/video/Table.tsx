@@ -12,6 +12,8 @@ import * as yup from "../../util/vendor/yup";
 import IconButton from "@material-ui/core/IconButton/IconButton";
 import {Link} from "react-router-dom";
 import EditIcon from "@material-ui/icons/Edit";
+import {DeleteDialog} from "../../components/DeleteDialog";
+import useDeleteCollection from "../../hooks/useDeleteCollection";
 
 const columnsDefinitions: TableColumn[] = [
     {
@@ -80,7 +82,7 @@ const columnsDefinitions: TableColumn[] = [
         options: {
             sort: false,
             filter: false,
-            customBodyRender:(value, tableMeta, updateValue) => {
+            customBodyRender: (value, tableMeta, updateValue) => {
                 return (
                     <IconButton
                         color={"secondary"}
@@ -108,6 +110,7 @@ const Table = () => {
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
     const [loading, setLoading] = useState<boolean>(false);
     const [categories, setCategories] = useState<Category[]>();
+    const {openDeleteDialog, setOpenDeleteDialog, rowsToDelete, setRowsToDelete} = useDeleteCollection();
 
     const {
         columns,
@@ -243,45 +246,92 @@ const Table = () => {
         }
     }
 
+    async function deleteRows(confirmed: boolean) {
+        if (!confirmed) {
+            setOpenDeleteDialog(false);
+            return;
+        }
+
+        try {
+            const ids = rowsToDelete.data.map(value => data[value.index].id).join(',');
+
+            await videoHttp.deleteCollection({ids});
+
+            if(
+                rowsToDelete.data.length === debouncedFilterState.pagination.per_page &&
+                debouncedFilterState.pagination.page > 1
+            ){
+                const page = debouncedFilterState.pagination.page - 2;
+                filterManager.changePage(page);
+            }else {
+                await getData();
+            }
+
+
+            setOpenDeleteDialog(false);
+
+            enqueueSnackbar("Registros excluidos com sucesso!", {variant: "success"});
+
+        } catch (e) {
+            console.log(e);
+            enqueueSnackbar("Não foi possível excluir os registros", {variant: "error"});
+        }
+
+        // videoHttp.deleteCollection({ids})
+        //     .then(response => getData()
+        //         .then(() => setOpenDeleteDialog(false))
+        //         .catch((error) => {
+        //             console.log(error);
+        //             enqueueSnackbar("Não foi possível excluir os registros", {variant: "error"});
+        //         })
+        //     )
+    }
+
 
     return (
-        <DefaultTable
-            title={"Videos"}
-            data={data}
-            columns={columns}
-            debouncedSearchTime={debouncedSearchTime}
-            loading={loading}
-            ref={tableRef}
-            options={{
-                serverSide: true,
-                searchText: filterState.search as any,
-                page: filterState.pagination.page - 1,
-                rowsPerPage: rowsPerPage,
-                rowsPerPageOptions: rowsPerPageOptions,
-                count: totalRecords,
-                customToolbar: () => {
-                    return <FilterResetButton handleClick={() => filterManager.resetFilter()}/>
-                },
-                onFilterChange: (column, filterList, type) => {
+        <React.Fragment>
+            <DeleteDialog open={openDeleteDialog} handleClose={deleteRows}/>
+            <DefaultTable
+                title={"Videos"}
+                data={data}
+                columns={columns}
+                debouncedSearchTime={debouncedSearchTime}
+                loading={loading}
+                ref={tableRef}
+                options={{
+                    serverSide: true,
+                    searchText: filterState.search as any,
+                    page: filterState.pagination.page - 1,
+                    rowsPerPage: rowsPerPage,
+                    rowsPerPageOptions: rowsPerPageOptions,
+                    count: totalRecords,
+                    customToolbar: () => {
+                        return <FilterResetButton handleClick={() => filterManager.resetFilter()}/>
+                    },
+                    onFilterChange: (column, filterList, type) => {
 
-                    const columnIndex = columns.findIndex(c => c.name === column);
+                        const columnIndex = columns.findIndex(c => c.name === column);
 
-                    if (columnIndex && filterList[columnIndex]) {
-                        filterManager.changeExtraFilter({
-                            [column]: filterList[columnIndex].length ? filterList[columnIndex] : null
-                        })
-                    } else {
-                        filterManager.clearExtraFilter();
+                        if (columnIndex && filterList[columnIndex]) {
+                            filterManager.changeExtraFilter({
+                                [column]: filterList[columnIndex].length ? filterList[columnIndex] : null
+                            })
+                        } else {
+                            filterManager.clearExtraFilter();
+                        }
+
+                    },
+                    onSearchChange: (value) => filterManager.changeSearch(value),
+                    onChangePage: (page) => filterManager.changePage(page),
+                    onChangeRowsPerPage: (per_page) => filterManager.changeRowsPerPage(per_page),
+                    onColumnSortChange: (changedColumn: string, direction: string) => filterManager.changeSort(changedColumn, direction),
+                    onRowsDelete: (rowsDeleted) => {
+                        setRowsToDelete(rowsDeleted as any);
+                        return false;
                     }
-
-                },
-                onSearchChange: (value) => filterManager.changeSearch(value),
-                onChangePage: (page) => filterManager.changePage(page),
-                onChangeRowsPerPage: (per_page) => filterManager.changeRowsPerPage(per_page),
-                onColumnSortChange: (changedColumn: string, direction: string) => filterManager.changeSort(changedColumn, direction)
-            }}
-        />
-
+                }}
+            />
+        </React.Fragment>
     );
 };
 
