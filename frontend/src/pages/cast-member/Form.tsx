@@ -9,13 +9,12 @@ import {useForm} from "react-hook-form";
 import castMemberHttp from "../../util/http/cast-member-http";
 import {useEffect, useState} from "react";
 import * as yup from '../../util/vendor/yup';
-import { useHistory } from 'react-router-dom';
+import {useHistory} from 'react-router-dom';
 import {useSnackbar} from "notistack";
 import {useParams} from 'react-router';
 import {CastMember, simpleResponse} from "../../util/models";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import SubmitActions from "../../components/SubmitActions";
-
 
 
 const validationSchema = yup.object().shape({
@@ -30,21 +29,20 @@ export const Form = () => {
         validationSchema
     });
 
-    const { enqueueSnackbar } = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
     const history = useHistory();
     const {id} = useParams();
     const [castMember, setCastMember] = useState<CastMember | null>(null);
     const [loading, setLoading] = useState(false);
 
 
-
     useEffect(() => {
-        register( {name: "type"});
+        register({name: "type"});
     }, [register]);
 
     useEffect(() => {
 
-        if(!id){
+        if (!id) {
             return;
         }
 
@@ -54,7 +52,7 @@ export const Form = () => {
                 const {data} = await castMemberHttp.get(id);
                 setCastMember(data.data);
                 reset(data.data);
-                setLoading(false);
+
 
             } catch (e) {
                 console.log(e);
@@ -67,7 +65,6 @@ export const Form = () => {
 
 
     }, [id, reset, enqueueSnackbar]);
-
 
 
     async function onSubmit(formData, event) {
@@ -87,16 +84,19 @@ export const Form = () => {
                         ? history.replace(`/cast-members/${data.data.id}/edit`)
                         : history.push(`/cast-members/${data.data.id}/edit`)
                 )
-                :   history.push("/cast-members");
+                : history.push("/cast-members");
         } catch (e) {
+            console.log(e);
             enqueueSnackbar("Não foi possível salvar Membro de elenco!", {variant: "error"});
             setLoading(false);
         }
     }
 
-    function validateSubmit(){
+    function validateSubmit() {
         triggerValidation()
-            .then(isValid => {isValid && onSubmit(getValues(), null)});
+            .then(isValid => {
+                isValid && onSubmit(getValues(), null)
+            });
     }
 
 
@@ -112,6 +112,7 @@ export const Form = () => {
                 fullWidth
                 variant="outlined"
                 inputRef={register}
+                disabled={loading}
                 InputLabelProps={{shrink: true}}
                 error={(errors.name) !== undefined}
                 helperText={errors.name && (errors as any).name.message}
@@ -120,17 +121,19 @@ export const Form = () => {
             <FormControl
                 margin={"normal"}
                 error={(errors.type) !== undefined}
+                disabled={loading}
             >
                 <FormLabel component="legend">Tipo</FormLabel>
                 <RadioGroup aria-label="tipo"
                             name={"type"}
                             onChange={handleRadioChange}
-                            value={watch('type')+""}>
-                    <FormControlLabel value="1" control={<Radio color={"primary"}/>} label="Diretor" />
-                    <FormControlLabel value="2" control={<Radio color={"primary"}/>} label="Ator" />
+                            value={watch('type') + ""}>
+                    <FormControlLabel value="1" control={<Radio color={"primary"}/>} label="Diretor"/>
+                    <FormControlLabel value="2" control={<Radio color={"primary"}/>} label="Ator"/>
                 </RadioGroup>
                 {
-                    (errors as any).type && <FormHelperText id="type-helper-text">{(errors as any).type.message}</FormHelperText>
+                    (errors as any).type &&
+                    <FormHelperText id="type-helper-text">{(errors as any).type.message}</FormHelperText>
                 }
             </FormControl>
             <SubmitActions disabledButtons={loading} handleSave={validateSubmit}/>

@@ -30,4 +30,9 @@ class CastMember extends Model
     ];
 
     protected $dates = ['deleted_at'];
+
+    public function videos()
+    {
+        return $this->belongsToMany(Video::class)->withTrashed();
+    }
 }

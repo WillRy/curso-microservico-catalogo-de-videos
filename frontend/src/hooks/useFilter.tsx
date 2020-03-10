@@ -47,6 +47,13 @@ export default function useFilter(options: UseFilterOptions) {
 
     filterManager.applyOrdersInColumns();
 
+    /** 
+     * Dá replace do objeto history assim que carrega o componente.
+     * Fluxo -> carrega -> pega dados da url -> coloca no estado inicial -> da replace do objeto history
+     *       -> da push history(porém o objeto é igual a primeira vez e ignora).
+     *       -> Futuras alterações fazem só o push do history
+     * 
+     */
     useEffect(() => {
         filterManager.replaceHistory();
     }, []);
@@ -192,7 +199,7 @@ export class FilterManager {
     }
 
     private formatSearchParams() {
-        const search = this.clearSearchText(this.state.search);
+        const search = this.clearSearchText(this.debouncedState.search);
 
         return {
             ...(search && search !== '' && {search: search}),

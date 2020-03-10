@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Resources\VideoResource;
 use App\Models\Video;
 use App\Rules\GenreHasCategoriesRule;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class VideoController extends BasicCrudController
@@ -26,6 +27,11 @@ class VideoController extends BasicCrudController
                 'required',
                 'array',
                 'exists:genres,id,deleted_at,NULL'
+            ],
+            'cast_members_id' => [
+                'required',
+                'array',
+                'exists:cast_members,id,deleted_at,NULL'
             ],
             'video_file' => 'mimetypes:video/mp4|max:'.Video::VIDEO_FILE_MAX_SIZE,
             'thumb_file' => 'image|max:'.Video::THUMB_FILE_MAX_SIZE,
@@ -93,5 +99,10 @@ class VideoController extends BasicCrudController
     protected function resourceCollection()
     {
         return $this->resource();
+    }
+
+    protected function queryBuilder(): Builder
+    {
+        return parent::queryBuilder()->with('genres.categories');
     }
 }

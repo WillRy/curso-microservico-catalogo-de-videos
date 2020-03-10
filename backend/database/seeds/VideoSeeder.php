@@ -7,9 +7,11 @@ use Illuminate\Database\Seeder;
 class VideoSeeder extends Seeder
 {
     private $allGenres = [];
+    private $allCastMembers = [];
     private $relations = [
         'categories_id' => [],
-        'genres_id' => []
+        'genres_id' => [],
+        'cast_members_id' => []
     ];
     public function run()
     {
@@ -20,6 +22,7 @@ class VideoSeeder extends Seeder
         $self = $this;
 
         $this->allGenres = \App\Models\Genre::all();
+        $this->allCastMembers = \App\Models\CastMember::all();
 
         //permite o mass assigment
         Model::reguard();
@@ -61,6 +64,7 @@ class VideoSeeder extends Seeder
         $genresId = $subGenres->pluck('id')->toArray();
         $this->relations['categories_id'] = $categoriesId;
         $this->relations['genres_id'] = $genresId;
+        $this->relations['cast_members_id'] = $this->allCastMembers->random(3)->pluck('id')->toArray();
 
     }
 

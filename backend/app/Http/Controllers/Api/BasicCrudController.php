@@ -7,6 +7,7 @@ use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use Validator;
 
 abstract class BasicCrudController extends Controller
 {
@@ -29,7 +30,7 @@ abstract class BasicCrudController extends Controller
 
         $query = $this->queryBuilder();
 
-        if($hasFilter) {
+        if ($hasFilter) {
             $query = $query->filter($request->all());
         }
 
@@ -41,7 +42,7 @@ abstract class BasicCrudController extends Controller
 
         $refClass = new \ReflectionClass($this->resourceCollection());
 
-        return $refClass->isSubclassOf( ResourceCollection::class)
+        return $refClass->isSubclassOf(ResourceCollection::class)
             ? new $resourceCollectionClass($data)
             : $resourceCollectionClass::collection($data);
     }
@@ -78,17 +79,40 @@ abstract class BasicCrudController extends Controller
         return response()->noContent();
     }
 
+    public function destroyCollection(Request $request)
+    {
+        $data = $this->validateIds($request);
+        $this->model()::whereIn('id', $data['ids'])->delete();
+        return response()->noContent();
+    }
+
+    protected function validateIds(Request $request)
+    {
+        $model = $this->model();
+        $ids = explode(',', $request->get('ids'));
+        $validator = Validator::make(
+            [
+                'ids' => $ids
+            ],
+            [
+                'ids'=> 'required|exists:'.(new $model)->getTable().',id'
+            ]
+        );
+
+        return $validator->validate();
+    }
+
     protected function findOrFail($id)
     {
         $model = $this->model();
 
         /** Pega a key name para saber qual o meio de busca. Seja id ou slug */
         $keyName = (new $model)->getRouteKeyName();
-        return $this->model()::where($keyName, $id)->firstOrFail();
+        return $this->queryBuilder()->where($keyName, $id)->firstOrFail();
     }
 
-    protected function queryBuilder(): Builder {
+    protected function queryBuilder(): Builder
+    {
         return $this->model()::query();
     }
-
 }

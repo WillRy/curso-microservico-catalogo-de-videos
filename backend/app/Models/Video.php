@@ -22,6 +22,8 @@ class Video extends Model
 
     public $incrementing = false;
 
+    protected $hidden = ['video_file', 'thumb_file', 'trailer_file', 'banner_file'];
+
     public static $fileFields = [
         'video_file',
         'thumb_file',
@@ -67,7 +69,7 @@ class Video extends Model
 
             return $obj;
         } catch (\Exception $e) {
-            if(isset($obj)){
+            if (isset($obj)) {
                 $obj->deleteFiles($files);
             }
             DB::rollBack();
@@ -86,13 +88,13 @@ class Video extends Model
             $saved = parent::update($attributes, $options);
             static::handleRelations($this, $attributes);
 
-            if($saved){
+            if ($saved) {
                 $this->uploadFiles($files);
             }
             \DB::commit();
 
             //depois do commit para garantir que nao exclua sem ter efetuado o save
-            if($saved && count($files)){
+            if ($saved && count($files)) {
                 $this->deleteOldFiles();
             }
             return $saved;
@@ -106,12 +108,14 @@ class Video extends Model
 
     public static function handleRelations(Video $video, array $attributes)
     {
-
-        if(isset($attributes['categories_id'])){
+        if (isset($attributes['categories_id'])) {
             $video->categories()->sync($attributes['categories_id']);
         }
-        if(isset($attributes['genres_id'])){
+        if (isset($attributes['genres_id'])) {
             $video->genres()->sync($attributes['genres_id']);
+        }
+        if (isset($attributes['cast_members_id'])) {
+            $video->castMembers()->sync($attributes['cast_members_id']);
         }
     }
 
@@ -125,6 +129,10 @@ class Video extends Model
         return $this->belongsToMany(Genre::class)->withTrashed();
     }
 
+    public function castMembers()
+    {
+        return $this->belongsToMany(CastMember::class)->withTrashed();
+    }
 
     protected function uploadDir()
     {

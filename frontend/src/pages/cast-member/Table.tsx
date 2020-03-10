@@ -10,6 +10,9 @@ import useFilter from "../../hooks/useFilter";
 import FilterResetButton from "../../components/Table/FilterResetButton";
 import * as yup from '../../util/vendor/yup';
 import {invert} from 'lodash';
+import IconButton from "@material-ui/core/IconButton/IconButton";
+import {Link} from "react-router-dom";
+import EditIcon from "@material-ui/icons/Edit";
 
 const castMemberNames = Object.values(CastMemberTypeMap);
 
@@ -51,6 +54,25 @@ const columnsDefinitions: TableColumn[] = [
                 return <span> {
                     format(parseISO(value), 'dd/MM/yyyy')
                 } </span>
+            }
+        }
+    },
+    {
+        name: "actions",
+        label: "Ações",
+        width: '13%',
+        options: {
+            sort: false,
+            filter: false,
+            customBodyRender:(value, tableMeta, updateValue) => {
+                return (
+                    <IconButton
+                        color={"secondary"}
+                        component={Link}
+                        to={`/cast-members/${tableMeta.rowData[0]}/edit`}>
+                        <EditIcon/>
+                    </IconButton>
+                )
             }
         }
     }
