@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {createRef, MutableRefObject, useEffect, useRef, useState} from 'react';
+import {createRef, MutableRefObject, useContext, useEffect, useRef, useState} from 'react';
 import * as yup from '../../../util/vendor/yup';
 import {useForm} from "react-hook-form";
 import {DefaultForm} from "../../../components/DefaultForm";
@@ -29,6 +29,7 @@ import {CastMemberField, CastMemberFieldComponent} from "./CastMemberField";
 import {omit, zipObject} from 'lodash';
 import {InputFileComponent} from "../../../components/InputFile";
 import useSnackbarFormError from "../../../hooks/useSnackbarFormError";
+import LoadingContext from "../../../components/Loading/LoadingContext";
 
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -117,7 +118,7 @@ const Index = () => {
     const {enqueueSnackbar} = useSnackbar();
     const history = useHistory();
     const [video, setVideo] = useState<Video | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
     const theme = useTheme();
     const isGreaterMd = useMediaQuery(theme.breakpoints.up('md'));
     const castMemberRef = useRef() as MutableRefObject<CastMemberFieldComponent>;
@@ -148,7 +149,6 @@ const Index = () => {
         }
 
         (async function getVideo() {
-            setLoading(true);
             try {
                 const {data} = await videoHttp.get(id);
                 setVideo(data.data);
@@ -156,8 +156,6 @@ const Index = () => {
             } catch (e) {
                 console.log(e);
                 enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
-            } finally {
-                setLoading(false);
             }
         })();
     }, [enqueueSnackbar, id, reset]);
@@ -170,14 +168,12 @@ const Index = () => {
         sendData['genres_id'] = formData['genres'].map(genre => genre.id);
         sendData['categories_id'] = formData['categories'].map(category => category.id);
 
-        setLoading(true);
         try {
             const http = !video
                 ? videoHttp.create(sendData)
                 : videoHttp.update(video.id, {...sendData, _method: 'PUT'}, {http: {usePost: true}});
             const {data} = await http;
             enqueueSnackbar('Vídeo salvo com sucesso!', {variant: "success"});
-            setLoading(false);
 
             id && resetForm(video);
             event
@@ -191,7 +187,6 @@ const Index = () => {
         } catch (e) {
             console.log(e);
             enqueueSnackbar("Não foi possível salvar as informações", {variant: "error"});
-            setLoading(false);
         }
 
     }
@@ -397,7 +392,6 @@ const Index = () => {
                                         color={"primary"}
                                         onChange={() => {
                                             setValue('opened', !getValues()['opened']);
-                                            console.log(getValues())
                                         }}
                                         checked={watch('opened') as boolean}
                                         disabled={loading}

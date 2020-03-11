@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useEffect, useRef, useState} from 'react';
+import {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import castMemberHttp from "../../util/http/cast-member-http";
@@ -13,6 +13,7 @@ import {invert} from 'lodash';
 import IconButton from "@material-ui/core/IconButton/IconButton";
 import {Link} from "react-router-dom";
 import EditIcon from "@material-ui/icons/Edit";
+import LoadingContext from "../../components/Loading/LoadingContext";
 
 const castMemberNames = Object.values(CastMemberTypeMap);
 
@@ -90,8 +91,9 @@ const Table = () => {
     const {enqueueSnackbar} = useSnackbar();
     const subscribed = useRef(false);
     const [data, setData] = useState<CastMember[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
+
+    const loading = useContext(LoadingContext);
 
     const {
         filterManager,
@@ -164,7 +166,6 @@ const Table = () => {
     ]);
 
     async function getData() {
-        setLoading(true);
 
         try {
             const {data} = await castMemberHttp.list<listResponse<CastMember>>({
@@ -197,8 +198,6 @@ const Table = () => {
             }
 
             enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
-        } finally {
-            setLoading(false);
         }
     }
 

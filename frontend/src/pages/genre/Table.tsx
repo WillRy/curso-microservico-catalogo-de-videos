@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useEffect, useRef, useState} from 'react';
+import {useContext, useEffect, useRef, useState} from 'react';
 import format from "date-fns/format";
 import parseISO from "date-fns/parseISO";
 import {BadgeNo, BadgeYes} from "../../components/Badge";
@@ -14,6 +14,7 @@ import categoryHttp from "../../util/http/category-http";
 import IconButton from "@material-ui/core/IconButton/IconButton";
 import {Link} from "react-router-dom";
 import EditIcon from "@material-ui/icons/Edit";
+import LoadingContext from "../../components/Loading/LoadingContext";
 
 const columnsDefinitions: TableColumn[] = [
     {
@@ -84,7 +85,7 @@ const columnsDefinitions: TableColumn[] = [
                     <IconButton
                         color={"secondary"}
                         component={Link}
-                        to={`/genre/${tableMeta.rowData[0]}/edit`}>
+                        to={`/genres/${tableMeta.rowData[0]}/edit`}>
                         <EditIcon/>
                     </IconButton>
                 )
@@ -104,9 +105,10 @@ export const Table = () => {
     const {enqueueSnackbar} = useSnackbar();
     const [data, setData] = useState<Genre[]>([]);
     const subscribed = useRef(true);
-    const [loading, setLoading] = useState<boolean>(false);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
     const [categories, setCategories] = useState<Category[]>([]);
+
+    const loading = useContext(LoadingContext);
 
     const {
         columns,
@@ -208,7 +210,6 @@ export const Table = () => {
     ]);
 
     async function getData() {
-        setLoading(true);
 
         try {
 
@@ -238,8 +239,6 @@ export const Table = () => {
                 return;
             }
             enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
-        } finally {
-            setLoading(false);
         }
     }
 
