@@ -2,11 +2,12 @@ import * as React from 'react';
 import {Autocomplete, AutocompleteProps, UseAutocompleteSingleProps} from "@material-ui/lab";
 import {TextFieldProps} from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
-import {RefAttributes, useState} from "react";
+import {RefAttributes, useContext, useState} from "react";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import {useEffect} from "react";
 import {useDebounce} from "use-debounce";
 import {useImperativeHandle} from "react";
+import LoadingContext from "./Loading/LoadingContext";
 
 
 interface AsyncAutoCompleteProps extends RefAttributes<AsyncAutoCompleteComponent>{
@@ -27,7 +28,7 @@ export const AsyncAutoComplete = React.forwardRef<AsyncAutoCompleteComponent, As
     const [open, setOpen] = useState<boolean>(false);
     const [searchText, setSearchText] = useState<string>("");
     const [debouncedSearchText] = useDebounce<string>(searchText, debounceTime);
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
     const [options, setOptions] = useState([]);
 
     const textFieldProps: TextFieldProps = {
@@ -100,15 +101,14 @@ export const AsyncAutoComplete = React.forwardRef<AsyncAutoCompleteComponent, As
         }
 
         (async () => {
-            setLoading(true);
             try {
                 const data = await props.fetchOptions(debouncedSearchText);
                 // console.log(data); return;
                 if (isSubscribed) {
                     setOptions(data);
                 }
-            } finally {
-                setLoading(false);
+            } catch (e) {
+
             }
         })();
         return () => {

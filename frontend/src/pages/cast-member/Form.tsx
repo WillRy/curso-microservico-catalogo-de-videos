@@ -7,7 +7,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Radio from "@material-ui/core/Radio";
 import {useForm} from "react-hook-form";
 import castMemberHttp from "../../util/http/cast-member-http";
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import * as yup from '../../util/vendor/yup';
 import {useHistory} from 'react-router-dom';
 import {useSnackbar} from "notistack";
@@ -15,6 +15,7 @@ import {useParams} from 'react-router';
 import {CastMember, simpleResponse} from "../../util/models";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import SubmitActions from "../../components/SubmitActions";
+import LoadingContext from "../../components/Loading/LoadingContext";
 
 
 const validationSchema = yup.object().shape({
@@ -33,7 +34,7 @@ export const Form = () => {
     const history = useHistory();
     const {id} = useParams();
     const [castMember, setCastMember] = useState<CastMember | null>(null);
-    const [loading, setLoading] = useState(false);
+    const loading = useContext(LoadingContext);
 
 
     useEffect(() => {
@@ -47,7 +48,6 @@ export const Form = () => {
         }
 
         (async function getCastMember() {
-            setLoading(true);
             try {
                 const {data} = await castMemberHttp.get(id);
                 setCastMember(data.data);
@@ -58,8 +58,6 @@ export const Form = () => {
                 console.log(e);
                 enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
 
-            } finally {
-                setLoading(false);
             }
         })();
 
@@ -68,7 +66,6 @@ export const Form = () => {
 
 
     async function onSubmit(formData, event) {
-        setLoading(true);
         try {
             const http = !castMember
                 ? castMemberHttp.create<simpleResponse<CastMember>>(formData)
@@ -76,7 +73,6 @@ export const Form = () => {
 
             const {data} = await http;
             enqueueSnackbar("Membro de elenco salvo com sucesso!", {variant: "success"});
-            setLoading(false);
             event
                 ?
                 (
@@ -88,7 +84,6 @@ export const Form = () => {
         } catch (e) {
             console.log(e);
             enqueueSnackbar("Não foi possível salvar Membro de elenco!", {variant: "error"});
-            setLoading(false);
         }
     }
 

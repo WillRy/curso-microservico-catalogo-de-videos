@@ -12,6 +12,8 @@ import {useSnackbar} from "notistack";
 import {Genre} from "../../util/models";
 import * as yup from '../../util/vendor/yup';
 import SubmitActions from "../../components/SubmitActions";
+import {useContext} from "react";
+import LoadingContext from "../../components/Loading/LoadingContext";
 
 const validationSchema = yup.object().shape({
     name: yup.string().label('Nome').required().max(255),
@@ -32,7 +34,7 @@ const Form = () => {
     const {id} = useParams();
     const [categories, setCategories] = useState<Category[]>( []);
     const [genre, setGenre] = useState<Genre | null>( null);
-    const [loading, setLoading] = useState(false);
+    const loading = useContext(LoadingContext);
 
     useEffect(() => {
         register({
@@ -45,7 +47,6 @@ const Form = () => {
         let isSubscribed = true;
 
         (async () => {
-            setLoading(true);
 
             const promises = [categoryHttp.list({queryParams: {all: ''}})];
 
@@ -72,8 +73,6 @@ const Form = () => {
             } catch (e) {
                 console.log(e);
                 enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
-            } finally {
-                setLoading(false);
             }
         })();
 
@@ -88,7 +87,6 @@ const Form = () => {
     };
 
     async function onSubmit(formData, event)  {
-        setLoading(true);
 
         try {
             const http = !genre
@@ -97,7 +95,6 @@ const Form = () => {
 
             const {data} = await http;
             enqueueSnackbar("Gênero salvo com sucesso!", {variant:"success"});
-            setLoading(false);
 
             event
                 ? (
@@ -109,8 +106,6 @@ const Form = () => {
         } catch (e) {
             console.log(e);
             enqueueSnackbar("Não foi possível salvar o gênero", {variant:"error"});
-            setLoading(false);
-
         }
 
     }

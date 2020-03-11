@@ -3,7 +3,7 @@ import {Checkbox, TextField} from "@material-ui/core";
 import {useForm} from 'react-hook-form';
 import categoryHttp from "../../util/http/category-http";
 import * as yup from '../../util/vendor/yup';
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {useParams} from 'react-router';
 import {Category, simpleResponse} from "../../util/models";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
@@ -11,6 +11,7 @@ import {useHistory} from 'react-router-dom';
 import {useSnackbar} from "notistack";
 import SubmitActions from "../../components/SubmitActions";
 import {DefaultForm} from "../../components/DefaultForm";
+import LoadingContext from "../../components/Loading/LoadingContext";
 
 
 const validationSchema = yup.object().shape({
@@ -39,7 +40,7 @@ export const Form = () => {
     const history = useHistory();
     const {id} = useParams();
     const [category, setCategory] = useState<Category | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
+    const loading = useContext(LoadingContext);
 
 
     useEffect(() => {
@@ -54,7 +55,6 @@ export const Form = () => {
         }
 
         (async function getCategory() {
-            setLoading(true);
             try {
                 const {data} = await categoryHttp.get(id);
                 setCategory(data.data);
@@ -62,8 +62,6 @@ export const Form = () => {
             } catch (e) {
                 console.log(e);
                 enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
-            } finally {
-                setLoading(false)
             }
         })();
 
@@ -71,7 +69,7 @@ export const Form = () => {
     }, [id, reset, enqueueSnackbar]);
 
     async function onSubmit(formData, event) {
-        setLoading(true);
+
         try {
             const http = !category
                 ? categoryHttp.create<simpleResponse<Category>>(formData)
@@ -79,7 +77,6 @@ export const Form = () => {
 
             const {data} = await http;
             enqueueSnackbar('Categoria salva com sucesso!', {variant: "success"});
-            setLoading(false);
             event
                 ? (
                     id
@@ -90,7 +87,6 @@ export const Form = () => {
         } catch (e) {
             console.log(e);
             enqueueSnackbar('Não foi possível salvar a categoria!', {variant: "error"});
-            setLoading(false)
         }
     }
 

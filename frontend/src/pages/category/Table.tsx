@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useEffect, useRef, useState} from 'react';
+import {useContext, useEffect, useRef, useState} from 'react';
 import format from 'date-fns/format';
 import parseISO from 'date-fns/parseISO';
 import categoryHttp from "../../util/http/category-http";
@@ -12,6 +12,7 @@ import useFilter from "../../hooks/useFilter";
 import IconButton from '@material-ui/core/IconButton/IconButton';
 import { Link } from 'react-router-dom';
 import EditIcon from '@material-ui/icons/Edit';
+import LoadingContext from "../../components/Loading/LoadingContext";
 
 const columnsDefinitions: TableColumn[] = [
     {
@@ -90,8 +91,9 @@ const Table = () => {
     const {enqueueSnackbar} = useSnackbar();
     const subscribed = useRef(true); // {current: true}
     const [data, setData] = useState<Category[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
+
+    const loading = useContext(LoadingContext);
 
     const {
         filterManager,
@@ -127,7 +129,6 @@ const Table = () => {
     ]);
 
     async function getData() {
-        setLoading(true);
 
         try {
             const {data} = await categoryHttp.list<listResponse<Category>>(
@@ -152,8 +153,6 @@ const Table = () => {
                 return;
             }
             enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
-        } finally {
-            setLoading(false);
         }
     }
 

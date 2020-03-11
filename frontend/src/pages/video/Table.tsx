@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {useEffect, useRef, useState} from 'react';
+import {useContext, useEffect, useRef, useState} from 'react';
 import DefaultTable, {MuiDataTableRefComponent, TableColumn} from "../../components/Table";
 import {useSnackbar} from "notistack";
 import {Category, listResponse, Video} from "../../util/models";
@@ -14,6 +14,7 @@ import {Link} from "react-router-dom";
 import EditIcon from "@material-ui/icons/Edit";
 import {DeleteDialog} from "../../components/DeleteDialog";
 import useDeleteCollection from "../../hooks/useDeleteCollection";
+import LoadingContext from "../../components/Loading/LoadingContext";
 
 const columnsDefinitions: TableColumn[] = [
     {
@@ -108,9 +109,10 @@ const Table = () => {
     const [data, setData] = useState<Video[]>([]);
     const subscribed = useRef(true);
     const tableRef = useRef() as React.MutableRefObject<MuiDataTableRefComponent>;
-    const [loading, setLoading] = useState<boolean>(false);
     const [categories, setCategories] = useState<Category[]>();
     const {openDeleteDialog, setOpenDeleteDialog, rowsToDelete, setRowsToDelete} = useDeleteCollection();
+
+    const loading = useContext(LoadingContext);
 
     const {
         columns,
@@ -212,7 +214,6 @@ const Table = () => {
     ]);
 
     async function getData() {
-        setLoading(true);
 
         try {
             const {data} = await videoHttp.list<listResponse<Video>>({
@@ -241,8 +242,6 @@ const Table = () => {
                 return;
             }
             enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
-        } finally {
-            setLoading(false);
         }
     }
 
