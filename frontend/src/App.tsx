@@ -7,22 +7,27 @@ import Breadcrumbs from "./components/Breadcrumbs";
 import theme from "./theme";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import {SnackbarProvider} from "./components/SnackbarProvider";
+import Spinner from "./components/Spinner";
+import {LoadingProvider} from "./components/Loading/LoadingProvider";
 
 const App = () => {
     return (
         <React.Fragment>
-            <MuiThemeProvider theme={theme}>
-                <SnackbarProvider>
-                    <CssBaseline/>
-                    <BrowserRouter>
-                        <Navbar/>
-                        <Box paddingTop="70px">
-                            <Breadcrumbs/>
-                            <AppRouter/>
-                        </Box>
-                    </BrowserRouter>
-                </SnackbarProvider>
-            </MuiThemeProvider>
+            <LoadingProvider>
+                <MuiThemeProvider theme={theme}>
+                    <SnackbarProvider>
+                        <CssBaseline/>
+                        <BrowserRouter>
+                            <Spinner/>
+                            <Navbar/>
+                            <Box paddingTop="70px">
+                                <Breadcrumbs/>
+                                <AppRouter/>
+                            </Box>
+                        </BrowserRouter>
+                    </SnackbarProvider>
+                </MuiThemeProvider>
+            </LoadingProvider>
         </React.Fragment>
     );
 };
