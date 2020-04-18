@@ -75,11 +75,12 @@ function addUpload(state = INITIAL_STATE, action: AddUploadAction): State {
     }
     const index = findIndexUpload(state, action.payload.video.id);
 
+    /** upload ainda em progresso */
     if (index !== -1 && state.uploads[index].progress < 1) {
         return state;
     }
 
-    /** remove o video caso ele já exista */
+    /** remove o video caso ele já exista como concluido */
     const uploads = index === -1 ? state.uploads : update(state.uploads, {
         $splice: [[index, 1]]
     });
@@ -130,7 +131,7 @@ function updateProgress(state: State = INITIAL_STATE, action: UpdateProgressActi
     /** evita atualizar o progress de um video que já foi dado como concluido
      *  seja com sucesso, ou erro
      * */
-    if(file.progress === action.payload.progress){
+    if (file.progress === action.payload.progress) {
         return state;
     }
 
@@ -155,9 +156,9 @@ function setUploadError(state = INITIAL_STATE, action: SetUploadErrorAction): St
     const videoId = action.payload.video.id;
     const fileField = action.payload.fileField;
 
-    const {indexUpload, indexFile} = findIndexUploadAndFile(state,videoId,fileField);
+    const {indexUpload, indexFile} = findIndexUploadAndFile(state, videoId, fileField);
 
-    if(typeof indexUpload === "undefined"){
+    if (typeof indexUpload === "undefined") {
         return state;
     }
 
@@ -166,11 +167,11 @@ function setUploadError(state = INITIAL_STATE, action: SetUploadErrorAction): St
 
     const uploads = update(state.uploads, {
         [indexUpload]: {
-           files: {
-               [indexFile]: {
-                   $set: {...file, error: action.payload.error, progress: 1}
-               }
-           }
+            files: {
+                [indexFile]: {
+                    $set: {...file, error: action.payload.error, progress: 1}
+                }
+            }
         }
     });
 
