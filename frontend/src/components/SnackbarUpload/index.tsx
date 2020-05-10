@@ -1,12 +1,15 @@
 import * as React from 'react';
-import {Card, CardActions, Typography, IconButton, Collapse, Theme, List} from "@material-ui/core";
+import {useState} from 'react';
+import {Card, CardActions, Collapse, IconButton, List, Theme, Typography} from "@material-ui/core";
 import CloseIcon from '@material-ui/icons/Close';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import {useSnackbar} from "notistack";
 import {makeStyles} from "@material-ui/core/styles";
-import {useState} from "react";
 import classNames from 'classnames';
 import {UploadItem} from "./UploadItem";
+import {useSelector} from "react-redux";
+import {Upload, UploadModule} from "../../store/upload/types";
+import {countInProgress} from "../../store/upload/getters";
 
 const useStyles = makeStyles((theme: Theme) => ({
     card: {
@@ -46,33 +49,39 @@ const useStyles = makeStyles((theme: Theme) => ({
 interface SnackbarUploadProps {
     id: string | number;
 }
-const SnackbarUpload = React.forwardRef<any, SnackbarUploadProps>( (props,ref) => {
+
+const SnackbarUpload = React.forwardRef<any, SnackbarUploadProps>((props, ref) => {
 
     const {id} = props;
+    const classes = useStyles();
     const {closeSnackbar} = useSnackbar();
     const [expanded, setExpanded] = useState<boolean>(true);
 
-    const classes = useStyles();
+    const uploads = useSelector<UploadModule, Upload[]>((state) => state.upload.uploads);
+
+    const totalInProgress = countInProgress(uploads);
 
     return (
         <Card ref={ref} className={classes.card}>
             <CardActions classes={{root: classes.cardActionRoot}}>
                 <Typography variant={"subtitle2"} className={classes.title}>
-                    Fazendo o upload de (n) vídeo(s)
+                    Fazendo o upload de {totalInProgress} vídeo(s)
                 </Typography>
                 <div className={classes.icons}>
                     <IconButton color={"inherit"} onClick={() => setExpanded(!expanded)}>
                         <ExpandMoreIcon className={classNames(classes.expand, {[classes.expandOpen]: !expanded})}/>
                     </IconButton>
                     <IconButton color={"inherit"} onClick={() => closeSnackbar(id)}>
-                        <CloseIcon />
+                        <CloseIcon/>
                     </IconButton>
                 </div>
             </CardActions>
             <Collapse in={expanded}>
                 <List className={classes.list}>
-                    <UploadItem/>
-                    <UploadItem/>
+                    {uploads.map((upload: Upload, key) => (
+                        <UploadItem key={key} upload={upload}/>
+                    ))}
+
                 </List>
             </Collapse>
         </Card>

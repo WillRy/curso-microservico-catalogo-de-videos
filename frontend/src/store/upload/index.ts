@@ -1,5 +1,12 @@
 import {createActions, createReducer} from "reduxsauce";
-import {Actions, AddUploadAction, RemoveUploadAction, State, UpdateProgressAction, SetUploadErrorAction} from "./types";
+import {
+    Actions,
+    AddUploadAction,
+    RemoveUploadAction,
+    SetUploadErrorAction,
+    UpdateProgressAction,
+    UploadState
+} from "./types";
 import update from 'immutability-helper';
 
 export const {Types, Creators} = createActions<{
@@ -20,11 +27,11 @@ export const {Types, Creators} = createActions<{
         setUploadError: ['payload']
     }
 );
-export const INITIAL_STATE: State = {
+export const INITIAL_STATE: UploadState = {
     uploads: []
 };
 
-const reducer = createReducer<State, Actions>(INITIAL_STATE, {
+const reducer = createReducer<UploadState, Actions>(INITIAL_STATE, {
     [Types.ADD_UPLOAD]: addUpload as any,
     [Types.REMOVE_UPLOAD]: removeUpload as any,
     [Types.UPDATE_PROGRESS]: updateProgress as any,
@@ -33,7 +40,7 @@ const reducer = createReducer<State, Actions>(INITIAL_STATE, {
 
 export default reducer;
 
-function findIndexUpload(state: State, id: string) {
+function findIndexUpload(state: UploadState, id: string) {
     return state.uploads.findIndex(upload => upload.video.id === id);
 }
 
@@ -41,7 +48,7 @@ function findIndexFile(files: Array<{ fileField }>, fileField: string) {
     return files.findIndex(file => file.fileField === fileField);
 }
 
-function findIndexUploadAndFile(state: State, videoId: string, fileField: string): { indexUpload?, indexFile? } {
+function findIndexUploadAndFile(state: UploadState, videoId: string, fileField: string): { indexUpload?, indexFile? } {
 
     const indexUpload = findIndexUpload(state, videoId);
 
@@ -69,7 +76,7 @@ function calculateGlobalProgress(files: Array<{ progress }>) {
     return sumProgress / countFiles;
 }
 
-function addUpload(state = INITIAL_STATE, action: AddUploadAction): State {
+function addUpload(state = INITIAL_STATE, action: AddUploadAction): UploadState {
     if (action.payload.files.length === 0) {
         return state;
     }
@@ -101,7 +108,7 @@ function addUpload(state = INITIAL_STATE, action: AddUploadAction): State {
     }
 }
 
-function removeUpload(state = INITIAL_STATE, action: RemoveUploadAction): State {
+function removeUpload(state = INITIAL_STATE, action: RemoveUploadAction): UploadState {
     //ao ter leva muito grande de uploads, filter não é adequado, por ser pouco performatico
     //
     const uploads = state.uploads.filter(upload => upload.video.id !== action.payload.id);
@@ -115,7 +122,7 @@ function removeUpload(state = INITIAL_STATE, action: RemoveUploadAction): State 
     }
 }
 
-function updateProgress(state: State = INITIAL_STATE, action: UpdateProgressAction): State {
+function updateProgress(state: UploadState = INITIAL_STATE, action: UpdateProgressAction): UploadState {
 
     const videoId = action.payload.video.id;
     const fileField = action.payload.fileField;
@@ -152,7 +159,7 @@ function updateProgress(state: State = INITIAL_STATE, action: UpdateProgressActi
     return {uploads};
 }
 
-function setUploadError(state = INITIAL_STATE, action: SetUploadErrorAction): State {
+function setUploadError(state = INITIAL_STATE, action: SetUploadErrorAction): UploadState {
     const videoId = action.payload.video.id;
     const fileField = action.payload.fileField;
 

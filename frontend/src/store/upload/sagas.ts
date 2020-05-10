@@ -1,6 +1,6 @@
-import {Types, Creators} from './index';
-import {eventChannel, END} from 'redux-saga';
-import {actionChannel, take, call, put} from 'redux-saga/effects';
+import {Creators, Types} from './index';
+import {END, eventChannel} from 'redux-saga';
+import {actionChannel, call, put, take} from 'redux-saga/effects';
 import {AddUploadAction, FileInfo} from "./types";
 import {Video} from "../../util/models";
 import videoHttp from "../../util/http/video-http";
@@ -67,6 +67,9 @@ function sendUpload({id, fileInfo}: { id: string, fileInfo: FileInfo }) {
                 usePost: true
             },
             config: {
+                headers: {
+                    ignoreLoading: true
+                },
                 onUploadProgress(progressEvent: ProgressEvent) {
                     if (progressEvent.lengthComputable) {
                         const progress = progressEvent.loaded / progressEvent.total;
