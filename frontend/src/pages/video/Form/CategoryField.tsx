@@ -11,10 +11,11 @@ import FormHelperText from "@material-ui/core/FormHelperText";
 import {getGenresFromCategory} from "../../../util/model-filter";
 import {makeStyles} from "@material-ui/core/styles";
 import {grey} from "@material-ui/core/colors";
-import {RefAttributes} from "react";
+import {RefAttributes, useCallback} from "react";
 import {useImperativeHandle} from "react";
 import {useRef} from "react";
 import {MutableRefObject} from "react";
+import genreHttp from "../../../util/http/genres-http";
 
 const useStyles = makeStyles(({
     genreSubtitle: {
@@ -45,7 +46,7 @@ const CategoryField = React.forwardRef<CategoryFieldComponent, CategoryFieldProp
 
     const classes = useStyles();
 
-    function fetchOptions() {
+    const fetchOptions = useCallback(() => {
         return autoCompleteHttp(
             categoryHttp
                 .list({
@@ -55,7 +56,8 @@ const CategoryField = React.forwardRef<CategoryFieldComponent, CategoryFieldProp
                     }
                 })
         ).then(data => data.data).catch(error => console.log(error));
-    }
+    }, [autoCompleteHttp, genres])
+
 
     useImperativeHandle(ref, () => ({
         clear: () => autoCompleteRef.current.clear()

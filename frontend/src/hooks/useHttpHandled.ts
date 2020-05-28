@@ -1,22 +1,23 @@
 import {useSnackbar} from "notistack";
 import Axios from "axios";
+import {useCallback} from "react";
 
 const useHttpHandled = () => {
     const {enqueueSnackbar} = useSnackbar();
-
-    return async (request: Promise<any>) => {
+    return useCallback(async (request: Promise<any>) => {
         try {
             const {data} = await request;
 
             return data;
         } catch (e) {
-            console.log(e);
+
             if (!Axios.isCancel(e)) {
                 enqueueSnackbar("Não foi possível carregar as informações", {variant: "error"});
             }
             throw e;
         }
-    }
+    }, [enqueueSnackbar]);
+
 };
 
 export default useHttpHandled;
