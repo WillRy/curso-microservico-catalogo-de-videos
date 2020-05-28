@@ -33,7 +33,7 @@ export default class HttpResource {
 
     create<T = any>(data): Promise<AxiosResponse<T>> {
         let sendData = this.makeSendData(data);
-        return this.http.post<T>(this.resource, data);
+        return this.http.post<T>(this.resource, sendData);
     }
 
     update<T = any>(id: any, data, options?: {http?: {usePost: boolean}, config?: AxiosRequestConfig}): Promise<AxiosResponse<T>> {

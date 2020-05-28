@@ -8,7 +8,6 @@ import GridSelected from "../../../components/GridSelected";
 import GridSelectedItem from "../../../components/GridSelectedItem";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import {MutableRefObject, RefAttributes, useCallback, useImperativeHandle, useRef} from "react";
-import genreHttp from "../../../util/http/genres-http";
 
 interface CastMemberFieldProps extends RefAttributes<CastMemberFieldComponent> {
     castMembers: any[];

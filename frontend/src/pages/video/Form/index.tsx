@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {createRef, MutableRefObject, useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {createRef, MutableRefObject, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import * as yup from '../../../util/vendor/yup';
 import {useForm} from "react-hook-form";
 import {DefaultForm} from "../../../components/DefaultForm";
@@ -173,8 +173,21 @@ const Index = () => {
     // setTimeout(() => {
     //     dispatch(Creators.removeUpload({id: '1'}));
     // }, 6000);
-
+    //
     console.log(uploads);
+
+
+    const resetForm = useCallback((data) => {
+        Object.keys(uploadRef.current).forEach(
+            field => uploadRef.current[field].current.clear()
+        );
+
+        castMemberRef.current.clear();
+        categoriesRef.current.clear();
+        genresRef.current.clear();
+        // reset(data);//opcional
+    }, [castMemberRef, categoriesRef, genresRef, uploadRef]);   //refs -> muda o conteudo, mas o que importa é a instancia
+
 
 
     useEffect(() => {
@@ -250,17 +263,6 @@ const Index = () => {
             enqueueSnackbar("Não foi possível salvar as informações", {variant: "error"});
         }
 
-    }
-
-    function resetForm(data) {
-        Object.keys(uploadRef.current).forEach(
-            field => uploadRef.current[field].current.clear()
-        );
-
-        castMemberRef.current.clear();
-        categoriesRef.current.clear();
-        genresRef.current.clear();
-        // reset(data);//opcional
     }
 
     function validateSubmit() {
