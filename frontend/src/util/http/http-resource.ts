@@ -33,18 +33,29 @@ export default class HttpResource {
 
     create<T = any>(data): Promise<AxiosResponse<T>> {
         let sendData = this.makeSendData(data);
-        return this.http.post<T>(this.resource, data);
+        return this.http.post<T>(this.resource, sendData);
     }
 
-    update<T = any>(id: any, data, options?: {http?: {usePost: boolean}}): Promise<AxiosResponse<T>> {
+    update<T = any>(id: any, data, options?: {http?: {usePost: boolean}, config?: AxiosRequestConfig}): Promise<AxiosResponse<T>> {
         let sendData = data;
         if (this.containsFile(data)) {
             sendData = this.getFormData(data);
         }
-        const {http} = (options || {}) as any;
+        const {http, config} = (options || {}) as any;
         return !options || !http || !http.usePost
-            ? this.http.put<T>(`${this.resource}/${id}`, sendData)
-            : this.http.post<T>(`${this.resource}/${id}`, sendData)
+            ? this.http.put<T>(`${this.resource}/${id}`, sendData, config)
+            : this.http.post<T>(`${this.resource}/${id}`, sendData, config)
+    }
+
+    partialUpdate<T = any>(id: any, data, options?: {http?: {usePost: boolean}, config?: AxiosRequestConfig}): Promise<AxiosResponse<T>> {
+        let sendData = data;
+        if (this.containsFile(data)) {
+            sendData = this.getFormData(data);
+        }
+        const {http, config} = (options || {}) as any;
+        return !options || !http || !http.usePost
+            ? this.http.patch<T>(`${this.resource}/${id}`, sendData, config)
+            : this.http.post<T>(`${this.resource}/${id}`, sendData, config)
     }
 
     makeSendData(data) {

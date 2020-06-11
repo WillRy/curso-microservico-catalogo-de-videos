@@ -58,7 +58,9 @@ class VideoController extends BasicCrudController
         $obj = $this->findOrFail($id);
 
         $this->addRuleIfGenreHasCategories($request);
-        $validatedData = $this->validate($request, $this->rulesUpdate());
+
+        /** RulesPatch usado para o upload de vídeos, que envia somente os campos de video, e não os demais campos da model */
+        $validatedData = $this->validate($request, $request->isMethod('PUT') ? $this->rulesUpdate() : $this->rulesPatch());
 
         $obj->update($validatedData);
 
@@ -67,6 +69,7 @@ class VideoController extends BasicCrudController
         return new $resource($obj);
     }
 
+    /** Adiciona regra personalizada para garantir que o genero tenha ao menos uma categoria */
     protected function addRuleIfGenreHasCategories(Request $request)
     {
         $categoriesId = is_array($request->get('categories_id')) ? $request->get('categories_id') : [];

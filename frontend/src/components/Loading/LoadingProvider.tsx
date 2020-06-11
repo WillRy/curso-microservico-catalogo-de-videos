@@ -1,16 +1,17 @@
 import * as React from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import LoadingContext from "./LoadingContext";
-import {useEffect, useMemo, useState} from "react";
 import {
     addGlobalRequestInterceptor,
     addGlobalResponseInterceptor,
-    removeGlobalRequestInterceptor, removeGlobalResponseInterceptor
+    removeGlobalRequestInterceptor,
+    removeGlobalResponseInterceptor
 } from "../../util/http";
+import {omit} from 'lodash';
 
 export const LoadingProvider = (props) => {
     const [loading, setLoading] = useState(false);
     const [countRequest, setCountRequest] = useState(0);
-
 
 
     /** Evitar registro duplicado de interceptors */
@@ -26,10 +27,11 @@ export const LoadingProvider = (props) => {
 
         const requestsIds = addGlobalRequestInterceptor(
             config => {
-                if (isSubscribed) {
+                if (isSubscribed && !config.headers.hasOwnProperty('ignoreLoading')) {
                     setLoading(true);
                     setCountRequest((prevState => prevState + 1))
                 }
+                config.headers = omit(config.headers, 'ignoreLoading');
                 return config
             });
 
@@ -58,12 +60,12 @@ export const LoadingProvider = (props) => {
      * Existe para garantir que requisições subsequentes não anulem o loading uma das outras
      * */
     useEffect(() => {
-        if(!countRequest){
+        if (!countRequest) {
             setLoading(false);
         }
     }, [countRequest]);
 
-    function decrementCountRequest(){
+    function decrementCountRequest() {
         setCountRequest((prevState => prevState - 1))
     }
 

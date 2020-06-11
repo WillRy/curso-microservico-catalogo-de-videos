@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {createRef, MutableRefObject, useContext, useEffect, useRef, useState} from 'react';
+import {createRef, MutableRefObject, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import * as yup from '../../../util/vendor/yup';
 import {useForm} from "react-hook-form";
 import {DefaultForm} from "../../../components/DefaultForm";
@@ -7,7 +7,8 @@ import {
     Checkbox,
     FormControlLabel,
     Grid,
-    TextField, Theme,
+    TextField,
+    Theme,
     Typography,
     useMediaQuery,
     useTheme
@@ -30,7 +31,10 @@ import {omit, zipObject} from 'lodash';
 import {InputFileComponent} from "../../../components/InputFile";
 import useSnackbarFormError from "../../../hooks/useSnackbarFormError";
 import LoadingContext from "../../../components/Loading/LoadingContext";
-
+import SnackbarUpload from "../../../components/SnackbarUpload";
+import {useDispatch, useSelector} from "react-redux";
+import {Upload, UploadModule} from "../../../store/upload/types";
+import {Creators} from '../../../store/upload';
 
 const useStyles = makeStyles((theme: Theme) => ({
     cardUpload: {
@@ -131,6 +135,61 @@ const Index = () => {
     //createRef = [{current: undefined}, {current: undefined}]
     //zipObject = [bannerfile: ref1, thumbfile: ref2]
 
+    const uploads = useSelector<UploadModule, Upload[]>((state) => state.upload.uploads);
+
+    const dispatch = useDispatch();
+
+    useMemo(() => {
+        setTimeout(() => {
+            const obj: any = {
+                video: {
+                    id: '05eacb02-8035-4dbb-b1a8-73ff39fec527',
+                    title: 'E o vento levou'
+                },
+                files: [
+                    {file: new File([''], 'trailer.mp4'), fileField: 'trailer_file'},
+                    {file: new File([''], 'video.mp4'), fileField: 'video_file'},
+                ]
+            };
+            dispatch(Creators.addUpload(obj));
+
+            const progress1: any = {
+                video: {id: '1'},
+                fileField: 'trailer_file',
+                progress: 10
+            };
+            const progress2: any = {
+                video: {id: '1'},
+                fileField: 'video_file',
+                progress: 10
+            };
+            dispatch(Creators.updateProgress(progress1));
+            dispatch(Creators.updateProgress(progress2));
+
+
+        }, 3000);
+    }, []);
+
+    // setTimeout(() => {
+    //     dispatch(Creators.removeUpload({id: '1'}));
+    // }, 6000);
+    //
+    console.log(uploads);
+
+
+    const resetForm = useCallback((data) => {
+        Object.keys(uploadRef.current).forEach(
+            field => uploadRef.current[field].current.clear()
+        );
+
+        castMemberRef.current.clear();
+        categoriesRef.current.clear();
+        genresRef.current.clear();
+        // reset(data);//opcional
+    }, [castMemberRef, categoriesRef, genresRef, uploadRef]);   //refs -> muda o conteudo, mas o que importa é a instancia
+
+
+
     useEffect(() => {
         [
             'rating',
@@ -143,6 +202,21 @@ const Index = () => {
     }, [register]);
 
     useEffect(() => {
+
+        enqueueSnackbar("", {
+            key: "snackbar-upload",
+            persist: true,
+            anchorOrigin: {
+                vertical: "bottom",
+                horizontal: "right"
+            },
+            content: (
+                (key, message) => {
+                    const id = key as any;
+                    return <SnackbarUpload id={id}/>
+                }
+            )
+        });
 
         if (!id) {
             return;
@@ -189,17 +263,6 @@ const Index = () => {
             enqueueSnackbar("Não foi possível salvar as informações", {variant: "error"});
         }
 
-    }
-
-    function resetForm(data) {
-        Object.keys(uploadRef.current).forEach(
-            field => uploadRef.current[field].current.clear()
-        );
-
-        castMemberRef.current.clear();
-        categoriesRef.current.clear();
-        genresRef.current.clear();
-        // reset(data);//opcional
     }
 
     function validateSubmit() {
