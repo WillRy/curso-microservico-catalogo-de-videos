@@ -20,7 +20,7 @@ class VideoController extends BasicCrudController
             'description' => 'required',
             'year_launched' => 'required|date_format:Y',
             'opened' => 'boolean',
-            'rating' => 'required|in:'. implode(',', Video::RATING_LIST),
+            'rating' => 'required|in:' . implode(',', Video::RATING_LIST),
             'duration' => 'required|integer',
             'categories_id' => 'required|array|exists:categories,id,deleted_at,NULL',
             'genres_id' => [
@@ -33,10 +33,10 @@ class VideoController extends BasicCrudController
                 'array',
                 'exists:cast_members,id,deleted_at,NULL'
             ],
-            'video_file' => 'mimetypes:video/mp4|max:'.Video::VIDEO_FILE_MAX_SIZE,
-            'thumb_file' => 'image|max:'.Video::THUMB_FILE_MAX_SIZE,
-            'banner_file' => 'image|max:'.Video::BANNER_FILE_MAX_SIZE,
-            'trailer_file' => 'mimetypes:video/mp4|max:'.Video::TRAILER_FILE_MAX_SIZE,
+            'video_file' => 'mimetypes:video/mp4|max:' . Video::VIDEO_FILE_MAX_SIZE,
+            'thumb_file' => 'image|max:' . Video::THUMB_FILE_MAX_SIZE,
+            'banner_file' => 'image|max:' . Video::BANNER_FILE_MAX_SIZE,
+            'trailer_file' => 'mimetypes:video/mp4|max:' . Video::TRAILER_FILE_MAX_SIZE,
         ];
     }
 
@@ -50,7 +50,6 @@ class VideoController extends BasicCrudController
 
         $resource = $this->resource();
         return new $resource($obj);
-
     }
 
     public function update(Request $request, $id)
@@ -106,6 +105,13 @@ class VideoController extends BasicCrudController
 
     protected function queryBuilder(): Builder
     {
-        return parent::queryBuilder()->with('genres.categories');
+        $action = \Route::getCurrentRoute()->getAction()['uses'];
+        return parent::queryBuilder()->with(
+            [
+                strpos($action, 'index') !== false ? 'genres' : 'genres.categories',
+                'categories',
+                'castMembers'
+            ]
+        );
     }
 }

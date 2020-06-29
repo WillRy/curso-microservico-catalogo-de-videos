@@ -1,4 +1,4 @@
-import axios, {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
+import axios, {AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios';
 
 
 
@@ -27,7 +27,7 @@ export function removeGlobalRequestInterceptor(ids) {
 
 export function addGlobalResponseInterceptor(
     onFulfilled?: (value: AxiosResponse) => AxiosResponse | Promise<AxiosResponse>,
-    onRejected?: (error: any) => any
+    onRejected?: (error: AxiosError) => any
 ) {
     let ids: number[] = [];
     for(let i of instances){

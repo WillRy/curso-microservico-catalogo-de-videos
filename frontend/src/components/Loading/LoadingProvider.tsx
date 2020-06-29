@@ -27,22 +27,22 @@ export const LoadingProvider = (props) => {
 
         const requestsIds = addGlobalRequestInterceptor(
             config => {
-                if (isSubscribed && !config.headers.hasOwnProperty('ignoreLoading')) {
+                if (isSubscribed && !config.headers.hasOwnProperty('x-ignore-loading')) {
                     setLoading(true);
                     setCountRequest((prevState => prevState + 1))
                 }
-                config.headers = omit(config.headers, 'ignoreLoading');
+
                 return config
             });
 
         const responseIds = addGlobalResponseInterceptor(
             response => {
-                if (isSubscribed) {
+                if (isSubscribed && !response.config.headers.hasOwnProperty('x-ignore-loading')) {
                     decrementCountRequest();
                 }
                 return response;
             }, error => {
-                if (isSubscribed) {
+                if (isSubscribed && !error.config.headers.hasOwnProperty('x-ignore-loading')) {
                     decrementCountRequest();
                 }
                 return Promise.reject(error);

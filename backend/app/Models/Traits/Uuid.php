@@ -14,7 +14,7 @@ trait Uuid
 
         /** Evento responsável por atribuir UUID */
         static::creating(function ($obj){
-            $obj->{$obj->getKeyName()} = (string)RamseyUuid::uuid4();
+            $obj->{$obj->getKeyName()} = (string)RamseyUuid::uuid4()->toString();
         });
     }
 }

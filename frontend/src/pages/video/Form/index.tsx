@@ -33,7 +33,7 @@ import useSnackbarFormError from "../../../hooks/useSnackbarFormError";
 import LoadingContext from "../../../components/Loading/LoadingContext";
 import SnackbarUpload from "../../../components/SnackbarUpload";
 import {useDispatch, useSelector} from "react-redux";
-import {Upload, UploadModule} from "../../../store/upload/types";
+import {FileInfo, Upload, UploadModule} from "../../../store/upload/types";
 import {Creators} from '../../../store/upload';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -105,7 +105,17 @@ const Index = () => {
         errors,
         triggerValidation,
         formState
-    } = useForm({
+    } = useForm<{
+        title,
+        description,
+        year_launched,
+        duration,
+        rating: string,
+        cast_members,
+        genres,
+        categories,
+        opened: boolean
+    }>({
         validationSchema,
         defaultValues: {
             rating: '',
@@ -135,46 +145,8 @@ const Index = () => {
     //createRef = [{current: undefined}, {current: undefined}]
     //zipObject = [bannerfile: ref1, thumbfile: ref2]
 
-    const uploads = useSelector<UploadModule, Upload[]>((state) => state.upload.uploads);
 
     const dispatch = useDispatch();
-
-    useMemo(() => {
-        setTimeout(() => {
-            const obj: any = {
-                video: {
-                    id: '05eacb02-8035-4dbb-b1a8-73ff39fec527',
-                    title: 'E o vento levou'
-                },
-                files: [
-                    {file: new File([''], 'trailer.mp4'), fileField: 'trailer_file'},
-                    {file: new File([''], 'video.mp4'), fileField: 'video_file'},
-                ]
-            };
-            dispatch(Creators.addUpload(obj));
-
-            const progress1: any = {
-                video: {id: '1'},
-                fileField: 'trailer_file',
-                progress: 10
-            };
-            const progress2: any = {
-                video: {id: '1'},
-                fileField: 'video_file',
-                progress: 10
-            };
-            dispatch(Creators.updateProgress(progress1));
-            dispatch(Creators.updateProgress(progress2));
-
-
-        }, 3000);
-    }, []);
-
-    // setTimeout(() => {
-    //     dispatch(Creators.removeUpload({id: '1'}));
-    // }, 6000);
-    //
-    console.log(uploads);
 
 
     const resetForm = useCallback((data) => {
@@ -185,7 +157,7 @@ const Index = () => {
         castMemberRef.current.clear();
         categoriesRef.current.clear();
         genresRef.current.clear();
-        // reset(data);//opcional
+        reset(data);//opcional
     }, [castMemberRef, categoriesRef, genresRef, uploadRef]);   //refs -> muda o conteudo, mas o que importa é a instancia
 
 
@@ -202,21 +174,6 @@ const Index = () => {
     }, [register]);
 
     useEffect(() => {
-
-        enqueueSnackbar("", {
-            key: "snackbar-upload",
-            persist: true,
-            anchorOrigin: {
-                vertical: "bottom",
-                horizontal: "right"
-            },
-            content: (
-                (key, message) => {
-                    const id = key as any;
-                    return <SnackbarUpload id={id}/>
-                }
-            )
-        });
 
         if (!id) {
             return;
@@ -237,7 +194,7 @@ const Index = () => {
     async function onSubmit(formData, event) {
 
 
-        const sendData = omit(formData, ['cast_members', 'genres', 'categories']);
+        const sendData = omit(formData, [...fileFields,'cast_members', 'genres', 'categories']);
         sendData['cast_members_id'] = formData['cast_members'].map(cast_member => cast_member.id);
         sendData['genres_id'] = formData['genres'].map(genre => genre.id);
         sendData['categories_id'] = formData['categories'].map(category => category.id);
@@ -245,11 +202,13 @@ const Index = () => {
         try {
             const http = !video
                 ? videoHttp.create(sendData)
-                : videoHttp.update(video.id, {...sendData, _method: 'PUT'}, {http: {usePost: true}});
+                : videoHttp.update(video.id, sendData);
             const {data} = await http;
             enqueueSnackbar('Vídeo salvo com sucesso!', {variant: "success"});
-
+            uploadFiles(data.data);
             id && resetForm(video);
+
+
             event
                 ? (
                     id
@@ -260,9 +219,40 @@ const Index = () => {
 
         } catch (e) {
             console.log(e);
+            id && resetForm(video);
             enqueueSnackbar("Não foi possível salvar as informações", {variant: "error"});
         }
 
+    }
+
+    function uploadFiles(video: Video){
+        //filtra arquivos contidos no formulario
+        const files: FileInfo[] = fileFields.filter((file) => getValues()[file]).map((fileField) => ({
+            fileField, file: getValues()[fileField]
+        }));
+
+        if(!files.length){
+            return;
+        }
+
+
+        //dispara action para saga fazer upload
+        dispatch(Creators.addUpload({video, files}));
+
+        enqueueSnackbar("", {
+            key: "snackbar-upload",
+            persist: true,
+            anchorOrigin: {
+                vertical: "bottom",
+                horizontal: "right"
+            },
+            content: (
+                (key, message) => {
+                    const id = key as any;
+                    return <SnackbarUpload id={id}/>
+                }
+            )
+        });
     }
 
     function validateSubmit() {
@@ -379,17 +369,7 @@ const Index = () => {
                                 disabled={loading}
                             />
                         </Grid>
-                        <Grid item xs={12}>
-                            <FormHelperText>
-                                Escolha os gêneros do vídeo
-                            </FormHelperText>
-                            <FormHelperText>
-                                Escolha pelo menos uma categoria de cada gênero
-                            </FormHelperText>
-                            <FormHelperText>
-                                As categorias devem estar relacionadas com no mínimo um gênero
-                            </FormHelperText>
-                        </Grid>
+
                     </Grid>
 
 

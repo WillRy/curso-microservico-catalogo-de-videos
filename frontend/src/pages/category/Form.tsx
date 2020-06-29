@@ -29,7 +29,7 @@ export const Form = () => {
         watch,
         setValue,
         triggerValidation
-    } = useForm({
+    } = useForm<{ name, description, is_active: boolean }>({
         defaultValues: {
             is_active: true
         },

@@ -4,7 +4,7 @@ import GridSelected from "../../../components/GridSelected";
 import GridSelectedItem from "../../../components/GridSelectedItem";
 import useHttpHandled from "../../../hooks/useHttpHandled";
 import categoryHttp from "../../../util/http/category-http";
-import {FormControl, FormControlProps, Typography} from '@material-ui/core';
+import {FormControl, FormControlProps, Grid, Typography, useTheme} from '@material-ui/core';
 import useCollectionManager from "../../../hooks/useCollectionManager";
 import {Genre} from "../../../util/models";
 import FormHelperText from "@material-ui/core/FormHelperText";
@@ -43,7 +43,7 @@ const CategoryField = React.forwardRef<CategoryFieldComponent, CategoryFieldProp
     const {addItem, removeItem} = useCollectionManager(categories, setCategories);
 
     const autoCompleteRef = useRef() as MutableRefObject<AsyncAutoCompleteComponent>;
-
+    const theme = useTheme();
     const classes = useStyles();
 
     const fetchOptions = useCallback(() => {
@@ -81,6 +81,10 @@ const CategoryField = React.forwardRef<CategoryFieldComponent, CategoryFieldProp
                     disabled: disabled === true || !genres.length
                 }}
             />
+            <FormHelperText style={{height: theme.spacing(3)}}>
+                Escolha pelo menos uma categoria de cada gênero
+            </FormHelperText>
+
             <FormControl
                 error={error !== undefined}
                 disabled={disabled === true}

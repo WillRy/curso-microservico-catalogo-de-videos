@@ -21,6 +21,7 @@ class Video extends Model
     const VIDEO_FILE_MAX_SIZE = 1024 * 1024 * 50; //50GB
 
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $hidden = ['video_file', 'thumb_file', 'trailer_file', 'banner_file'];
 
