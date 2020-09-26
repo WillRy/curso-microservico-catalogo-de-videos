@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\ModelFilters\CategoryFilter;
+use App\Models\Traits\SerializeDateToIso8601;
 use App\Models\Traits\Uuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -11,7 +12,7 @@ use EloquentFilter\Filterable;
 class Category extends Model
 {
 
-    use SoftDeletes, Uuid, Filterable;
+    use SoftDeletes, Uuid, Filterable, SerializeDateToIso8601;
 
     public $incrementing = false;
     protected $keyType = 'string';
