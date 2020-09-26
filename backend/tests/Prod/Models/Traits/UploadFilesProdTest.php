@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Models\Traits;
+namespace Tests\Prod\Models\Traits;
 
 use Illuminate\Http\UploadedFile;
 use Tests\Stubs\Traits\UploadFilesStub;
