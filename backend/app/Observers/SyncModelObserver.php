@@ -52,6 +52,28 @@ class SyncModelObserver
         }
     }
 
+    /**
+     * @param string $relation - nome da relação(metodo na model responsável por ele)
+     * @param Model $model - model que houve a operação
+     * @param array $ids - IDs modificados envolvidos relacionamento
+     */
+    public function belongsToManyAttached($relation, $model, $ids)
+    {
+        $modelName = $this->getModelName($model);
+        $relationName = Str::snake($relation);
+        $action = 'attached';
+        $routingKey = "model.{$modelName}_{$relationName}.{$action}";
+        $data = [
+            'id' => $model->id,
+            'relation_ids' => $ids
+        ];
+        try {
+            $this->publish($routingKey, $data);
+        } catch (\Exception $e) {
+            $this->reportException(['modelName' => $modelName, 'id' => $model->id, 'action' => $action, 'exception' => $e]);
+        }
+    }
+
     protected function publish($routingKey, array $data)
     {
         $message = new Message(json_encode($data), ['content_type' => 'application/json', 'delivery_mode' => 2]);
